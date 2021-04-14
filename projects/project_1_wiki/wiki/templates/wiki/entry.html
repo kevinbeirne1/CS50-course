@@ -1,0 +1,16 @@
+{% extends 'wiki/layout.html' %}}
+
+    {% block body %}
+
+        <h1>{{ entry_name }}</h1>
+
+        <form action="{% url 'wiki:edit_page' %}" method="post">
+            {% csrf_token %}
+            {{ entry_markdown|safe }}
+            <input type="hidden" name="entry_name" value= {{ entry_name }}>
+            <br><br>
+            <input type="submit" value="Edit Page" >
+        </form>
+
+    {% endblock %}}
+

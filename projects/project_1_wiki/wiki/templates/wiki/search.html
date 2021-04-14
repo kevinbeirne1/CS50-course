@@ -1,0 +1,19 @@
+{% extends 'wiki/layout.html' %}}
+
+    {% block body %}
+
+        <h1>Search Page</h1>
+        <form action="{% url 'wiki:search' %}" method="get">
+            {{ search_name }}
+            <input type="submit">
+        </form>
+            {% for page in partial_matches %}
+                 <li><a href="{% url 'wiki:entry' page %}">{{ page }}</a> </li>
+            {% empty %}
+                <h3>No Matches Found</h3>
+            {% endfor %}
+
+
+
+
+    {% endblock %}}

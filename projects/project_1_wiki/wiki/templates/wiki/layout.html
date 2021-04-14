@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+{% load static %}
+
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }} - Wiki</title>
+
+
+<link rel="stylesheet" href="{% static 'wiki/styles.css'%}">
+</head>
+<body>
+    <div class="sidenav">
+        <a href="{% url 'wiki:index' %}">Wiki</a>
+        <a href="{% url 'wiki:random_page' %}">Random</a>
+        <a href="{% url 'wiki:new_page' %}">New Page</a>
+        <form action="{% url 'wiki:search' %}" method="get">
+            {{ search_form }}
+            <input type="submit">
+        </form>
+
+    </div>
+    <div class="main">
+        {% block body %}
+        {% endblock %}
+    </div>
+</body>
+
+</html>

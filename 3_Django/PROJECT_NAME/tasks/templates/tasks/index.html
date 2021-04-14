@@ -1,0 +1,31 @@
+{% extends "tasks/layout.html" %}
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>Tasks</title>-->
+<!--</head>-->
+<!--<body>-->
+<!--    <ul>-->
+<!--        {% for task in tasks %}-->
+<!--            <li>{{ task }}</li>-->
+<!--        {% endfor %}-->
+<!--    </ul>-->
+
+<!--</body>-->
+<!--</html>-->
+
+
+<!-------------------------------------------------------->
+<!-- Replacing header items with separate file and then calling it in -->
+
+{% block body %}
+    <h1>Tasks</h1>
+    <ul>
+        {% for task in tasks %}
+            <li>{{ task }}</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'tasks:add' %}">Add a New Task</a>
+{% endblock %}}
+

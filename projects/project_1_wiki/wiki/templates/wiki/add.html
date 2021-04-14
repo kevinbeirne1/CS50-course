@@ -1,0 +1,14 @@
+{% extends 'wiki/layout.html' %}}
+
+{% block body %}
+    <h1>Add Task:</h1>
+    <form action="{% url 'wiki:add' %}" method="post">
+        {% csrf_token %}
+        {{ form.entry_name }}
+        <textarea name="entry_markdown">
+            {{ form.entry_markdown}}
+        </textarea>
+        <input type="submit">
+    </form>
+    <a href="{% url 'wiki:index' %}">View Tasks</a>
+{% endblock %}

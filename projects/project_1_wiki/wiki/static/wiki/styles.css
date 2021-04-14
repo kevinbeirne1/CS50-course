@@ -1,0 +1,32 @@
+.sidenav {
+  height: 100%;
+  width: 200px;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: black;
+}
+.sidenav a {
+  padding: 6px 8px 6px 16px;
+  text-decoration: none;
+  font-size: 25px;
+  color: red;
+  display: block;
+}
+
+.main {
+  margin-left: 200px;
+  padding: 0px 10px;
+}
+
+ul {
+  background-color: red;
+}
+
+textarea {
+  height: 150px;
+  width: 500px;
+}
+
+/*# sourceMappingURL=styles.css.map */

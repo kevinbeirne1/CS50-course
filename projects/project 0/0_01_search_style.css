@@ -1,0 +1,39 @@
+body {
+  text-align: center;
+  font-family: "Helvetica Neue", sans-serif;
+}
+
+[class=toplinks] {
+  text-align: right;
+}
+
+div[class=advanced] {
+  text-align: left;
+}
+
+form[class=regular] input[type=text], form[class=advanced] input[type=text] {
+  border-radius: 20px;
+  border-width: 1px;
+  border-color: #f1f0f0;
+  width: 500px;
+  height: 30px;
+  outline-style: none;
+}
+form[class=regular] [type=submit], form[class=advanced] [type=submit] {
+  border-radius: 5px;
+  border-width: 1px;
+}
+
+form[class=advanced] {
+  width: 1000px;
+}
+form[class=advanced] label {
+  display: inline-block;
+  min-width: 20%;
+}
+form[class=advanced] input[type=text] {
+  border-radius: 1px;
+  width: 60%;
+}
+
+/*# sourceMappingURL=0_01_search_style.css.map */

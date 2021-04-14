@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+    <link rel="stylesheet" href="{% static 'wiki/styles.css' %}">
+
+</head>
+<body>
+    <div class="main" >
+        <h1>Index Page</h1>
+        <ul>
+            {% for page in pages %}
+                <li>{{ page }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="sidenav">
+        <a href="#">About</a>
+        <a href="#">About</a>
+        <a href="#">About</a>
+    </div>
+
+
+
+</body>
+</html>

@@ -1,0 +1,16 @@
+
+{% extends 'wiki/layout.html' %}}
+
+
+    {% block body %}
+
+        <h1>Index Page</h1>
+        <ul>
+            {{pages}}
+            {% for page in pages.keys %}
+                <li><a href="{% url 'wiki:entry' page %}">{{ page }}</a> </li>
+            {% endfor %}
+        </ul>
+        {{ markdown|safe }}
+
+    {% endblock %}}

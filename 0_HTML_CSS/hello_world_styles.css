@@ -1,0 +1,37 @@
+h1 {
+    color: blue;
+    text-align: center;
+}
+
+/*
+COMMON CSS PROPERTIES
+color: the color of the text
+text-align: where elements are placed on the page
+background-colour: can be set to any color-profile
+width: in pixels or percent of page
+height: in pixels of percent of page
+padding: how much space should be left inside an element
+margin: how much space should be left outside an element
+font-family: type of font for text on page
+font-size: in pixels
+border: size type (solid, dashed, etc) color
+ */
+
+/*
+ORDER OF STYLING
+1. In-line
+2. ID
+3. Class
+4. Element
+ */
+
+/*
+WAYS OF SPECIFYING ELEMENTS
+a,b    - Multiple Element Selector
+a b    - Descendent Selector
+a > b  - Child Selector
+a + b  - Adjacent Sibling Selector
+[a=b]  - Attribute Selector
+a:b    - Pseudoclass Selector
+a::b   - Pseudoelement Selector
+ */

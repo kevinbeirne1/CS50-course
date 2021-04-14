@@ -1,0 +1,39 @@
+
+{% extends 'wiki/layout.html' %}}
+
+    {% block body %}
+
+        <h1>Edit Page - {{ entry_name }}</h1>
+<!--<div id="TextEdit" class="editable">-->
+<!--    <div id="request" runat="server" contenteditable="true"></div>-->
+<!--    <div id="requestInner" style="border-left:solid 1px gray;-->
+<!--		margin-left:10px; margin-right:10px;"-->
+<!--            contenteditable="true" UNSELECTABLE="ON">-->
+<!--	<b>I am the inner div</b>-->
+<!--	<br />with multiple lines. You can check me on this.<hr />-->
+<!--        This is the next line of text in <b>bold</b>, <i>Italic</i> and-->
+<!--        <span style="text-decoration:underline">underlined</span>.-->
+<!--        Click here for more details </div>-->
+<!--</div>-->
+<!--    <h1>{{ entry_name }}</h1>-->
+    <div >
+
+        <form value="test_form" action="{% url 'wiki:edit_page' %}" method="post">
+            {% csrf_token %}
+<!--            {{ page_markdown }}-->
+<!--            <input type="text" name="entry_markdown" value={{ entry_markdown }}>-->
+            <br><br>
+            <input type="hidden" name="entry_name" value= {{ entry_name }}>
+<!--            <textarea name="entry_markdown" value={{entry_markdown}}>-->
+{{entry_markdown}}
+<!--            </textarea>-->
+            </br>
+            <input type="submit" value="Save Page Updates">
+        </form>
+
+    </div>
+
+
+    {% endblock %}}
+
+

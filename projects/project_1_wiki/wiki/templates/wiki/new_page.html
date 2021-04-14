@@ -1,0 +1,18 @@
+{% extends 'wiki/layout.html' %}}
+
+{% block body %}
+
+    <h1>Create New Page</h1>
+    <form action="{% url 'wiki:new_page' %}" method="post">
+        {% csrf_token %}
+        <p>Enter New Page Name: {{ form.entry_name }}</p>
+        <p>New Page Details:</p>
+        <textarea name="entry_markdown">
+
+        </textarea>
+        <!--            {{ form.entry_markdown }}-->
+<!--        {{ form.as_p }}-->
+        <input type="submit">
+    </form>
+
+{% endblock %}}
