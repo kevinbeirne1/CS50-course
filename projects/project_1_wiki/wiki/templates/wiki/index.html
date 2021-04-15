@@ -6,11 +6,9 @@
 
         <h1>Index Page</h1>
         <ul>
-            {{pages}}
-            {% for page in pages.keys %}
+            {% for page in pages %}
                 <li><a href="{% url 'wiki:entry' page %}">{{ page }}</a> </li>
             {% endfor %}
         </ul>
-        {{ markdown|safe }}
 
     {% endblock %}}

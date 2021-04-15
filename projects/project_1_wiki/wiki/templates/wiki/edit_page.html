@@ -17,6 +17,7 @@
 <!--</div>-->
 <!--    <h1>{{ entry_name }}</h1>-->
     <div >
+        <h3><i>{{entry_name}}</i></h3>
 
         <form value="test_form" action="{% url 'wiki:edit_page' %}" method="post">
             {% csrf_token %}
@@ -24,9 +25,9 @@
 <!--            <input type="text" name="entry_markdown" value={{ entry_markdown }}>-->
             <br><br>
             <input type="hidden" name="entry_name" value= {{ entry_name }}>
-<!--            <textarea name="entry_markdown" value={{entry_markdown}}>-->
+            <textarea name="entry_markdown">
 {{entry_markdown}}
-<!--            </textarea>-->
+            </textarea>
             </br>
             <input type="submit" value="Save Page Updates">
         </form>
