@@ -1,11 +1,11 @@
 from django import forms
 
 
-class PageMarkdownForm(forms.Form):
-    page_markdown = forms.CharField(label="Page Markdown")
+class EditPageForm(forms.Form):
+    page_markdown = forms.CharField(widget=forms.Textarea())
 
-    def clean_page_markdown(self):
-        return self.cleaned_data['page_markdown'].capitalize()
+    # def clean_page_markdown(self):
+    #     return self.cleaned_data['page_markdown'].capitalize()
 
 
 class SearchForm(forms.Form):
