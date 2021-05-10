@@ -1,0 +1,18 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h1>Create New Listing</h1>
+<!--    {% for item in form %}-->
+<!--        <p>{{ item }}</p>-->
+<!--    {% endfor %}-->
+    <form method="post">
+        {% csrf_token %}
+        <p>Name: {{ form.name }}</p>
+        <p>Description: {{ form.description }}</p>
+        <input type="hidden" value={{ user.id }} name="creator">
+        <p>Category: {{ form.category }}</p>
+        <p>Image: {{form.image}}</p>
+        <p>Starting Price: {{ form.starting_bid }}</p>
+        <input type="submit">
+    </form>
+{% endblock %}
