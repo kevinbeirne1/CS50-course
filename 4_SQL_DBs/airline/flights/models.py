@@ -25,3 +25,6 @@ class Passenger(models.Model):
 
     def __str__(self):
         return f"{self.first} {self.last}"
+
+
+

@@ -1,0 +1,13 @@
+body {
+  padding: 10px;
+}
+
+img[class=listing_img] {
+  width: 450px;
+}
+
+div[class=messages] span {
+  text-transform: uppercase;
+}
+
+/*# sourceMappingURL=styles.css.map */
