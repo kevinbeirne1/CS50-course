@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Count</title>
+    <script>
+        // Check is there is already a value in local storage
+        if (!localStorage.getItem('counter')) {
+            // if not, set the counter to 0 in local storage
+            localStorage.setItem('counter', 0);
+            
+            // can use sessionStorage if want variable to clear when browser window is closed
+            // use local.Storage.clear() to delete whatever's in localStorage
+        }
+
+        count = () => {
+            // Retrieve counter value from local storage
+            let counter = localStorage.getItem('counter')
+
+            //update counter
+            counter++;
+            document.querySelector('h1').innerHTML = counter;
+
+            // Store counter in local storage
+            localStorage.setItem('counter', counter);
+        }
+        document.addEventListener("DOMContentLoaded", () => {
+            // Set heading to the current value inside local storage
+            document.querySelector('h1').innerHTML = localStorage.getItem('counter');
+            document.querySelector("button").onclick = count;
+        });
+
+
+
+    </script>
+</head>
+<body>
+    <h1>0</h1>
+    <button >Count</button>
+    <button onclick="clear_storage()">Reset Counter</button>
+</body>
+</html>

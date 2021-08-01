@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Animation</title>
+    <style>
+        /* Using from to */
+        @keyframes animation_name {
+            from {
+                /* some styling for the start */
+                color: white;
+            }
+            to {
+                /* some styling for the end */
+                color: red;
+            }
+        }
+
+        /* Using percentages */
+        @keyframes animation_name_1 {
+            0% {
+                /* some styling for the start */
+                color: white;
+            }
+            75% {
+                /* some styling for 3/4 animation */
+                color: blue;
+            }
+            100% {
+                /* some styling for the end */
+                color: red;
+            }
+        }
+
+        @keyframes grow {
+            from {
+                font-size: 20px;
+            }
+            to {
+                font-size: 100px;
+            }
+        }
+
+        h1 {
+            animation-name: grow;
+            animation-duration: 2s;
+            animation-fill-mode: forwards;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome!</h1>
+
+</body>
+</html>

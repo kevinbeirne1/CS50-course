@@ -5,6 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 # Create your tests here.
 from .models import Airport, Flight, Passenger
 
+
 class FlightTestCase(TestCase):
     def test_sample(self):
         self.assertEqual(True, True, "This is the sample test")
@@ -75,7 +76,7 @@ class FlightTestCase(TestCase):
 
         c = Client()
         response = c.get(f"/flight/{max_id + 1}")
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 404)
 
     def test_flight_page_passengers(self):
         """Ensure passenger are returned in the context"""
