@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js" crossorigin></script>
+    <title>Addition</title>
+</head>
+<body>
+<!--    <div id="app" style="font-family: sans-serif; text-align: center; "/>-->
+    <style>
+         #app {
+            text-align: center;
+            font-family: sans-serif;
+        }
+
+        #problem {
+            font-size: 72px;
+        }
+
+        #winner {
+            font-size: 72px;
+            color: green;
+        }
+    </style>
+
+    <div id="app" />
+
+    <script type="text/babel">
+        // import './style.css';
+
+        class App extends React.Component {
+
+            constructor(props) {
+                super(props);
+                this.state = {
+                    num1: 1,
+                    num2: 1,
+                    response: "",
+                    score: 0,
+                };
+            }
+
+            render() {
+                // Check if the score is 10
+                if (this.state.score === 3) {
+                    return (
+                        <div id="winner">
+                            You won!
+                        </div>
+                    );
+                }
+                    const problem_style = {
+                        // fontSize: "72px",
+                }
+
+                return (
+                    <div id="problem" style={problem_style}>
+                        <div>{this.state.num1} + {this.state.num2}</div>
+                        <input type="text" value={this.state.response} onKeyPress={this.inputKeyPress} onChange={this.updateResponse}/>
+                        <div> Score: {this.state.score} </div>
+                    </div>
+                );
+            }
+
+            updateResponse = (event) => {
+                this.setState({
+                    response: event.target.value
+                });
+            }
+
+            inputKeyPress = (event) => {
+                // Check if the enter key was pressed
+                if (event.key === 'Enter') {
+                    // Extract answer
+                    const answer = parseInt(this.state.response)
+
+                    // Check if answer is correct
+                    if (answer === this.state.num1 + this.state.num2) {
+                        this.setState(state => ({
+                            score: state.score + 1,
+                            num1: Math.ceil(Math.random() * 10),
+                            num2: Math.ceil(Math.random() * 10),
+                            response: ""
+                        }));
+                    }
+                    else {
+                        this.setState(state => ({
+                            score: Math.max(state.score - 1, 0),
+                            response: "",
+                        }));
+                    }
+
+                }
+            }
+        }
+
+
+        ReactDOM.render(<App />, document.querySelector("#app"));
+    </script>
+</body>
+</html>
