@@ -124,6 +124,16 @@ class LoginTest(FunctionalTest):
         # User is logged in (see log out option)
         self.check_user_logged_in()
 
+        # User logs out
+        logout_link = self.browser.find_element_by_xpath(
+            '//a[@class="nav-link"][text()="Log Out"]'
+        )
+        logout_link.click()
+        self.check_user_logged_out()
+
+        self.wait_for_alert_message("Logged out successfully")
+
+
     def test_user_with_account_can_login(self):
         """
         User has account (Pre-authenticated account created)
@@ -181,6 +191,15 @@ class LoginTest(FunctionalTest):
 
         # User is logged in (see log out option)
         self.check_user_logged_in()
+
+        # User logs out
+        logout_link = self.browser.find_element_by_xpath(
+            '//a[@class="nav-link"][text()="Log Out"]'
+        )
+        logout_link.click()
+        self.check_user_logged_out()
+
+        self.wait_for_alert_message("Logged out successfully")
 
     def test_user_cannot_create_duplicate_account(self):
         """
