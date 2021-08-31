@@ -65,9 +65,14 @@ class LoginTest(FunctionalTest):
         register_button = self.browser.find_element_by_xpath(
             "//input[@value='Register']"
         )
+
         register_button.click()
 
-    def wait_for_status_message(self, expected_message):
+    def wait_for_alert_message(self, expected_message):
+        """
+        Wait for alert to appear with the provided alert message.
+        Click to dismiss the alert and verify that the alert disappears
+        """
         status_message = self.browser.find_element_by_xpath(
             '//*[starts-with(@class, "alert")]'
         )
@@ -75,6 +80,17 @@ class LoginTest(FunctionalTest):
             expected_message,
             status_message.text
         ))
+
+        dismiss_alert_button = self.browser.find_element_by_xpath(
+            "//button[@data-dismiss='alert']"
+        )
+        dismiss_alert_button.click()
+
+        status_messages = self.browser.find_elements_by_xpath(
+            '//*[starts-with(@class, "alert")]'
+        )
+
+        self.wait_for(lambda: self.assertEqual(len(status_messages), 0))
 
     def test_user_can_create_new_account(self):
         """
@@ -97,13 +113,13 @@ class LoginTest(FunctionalTest):
 
         # Enters valid information and clicks register
         self.register_user_info_and_click_register(
-            "harry", "hpotter@test.com", "password", "password"
+            "harry", "hpotter@test.com", "P@ssword!", "P@ssword!"
         )
 
         # User gets success notification and is redirected to homepage
         self.wait_for_url_to_load('/')
 
-        self.wait_for_status_message("Success: New Account Created")
+        self.wait_for_alert_message("New Account Created")
 
         # User is logged in (see log out option)
         self.check_user_logged_in()
@@ -161,7 +177,7 @@ class LoginTest(FunctionalTest):
         # User gets success notification and is redirected to homepage
         self.wait_for_url_to_load('/')
 
-        self.wait_for_status_message("Success: Log In Complete")
+        self.wait_for_alert_message("Log In Complete")
 
         # User is logged in (see log out option)
         self.check_user_logged_in()
@@ -182,7 +198,7 @@ class LoginTest(FunctionalTest):
         user = User.objects.create_user(
             username='harry',
             email='hpotter@test.com',
-            password='password',
+            password='P@ssword!',
         )
 
         # User goes to the homepage
@@ -196,12 +212,12 @@ class LoginTest(FunctionalTest):
 
         # Enters duplicate information and clicks register
         self.register_user_info_and_click_register(
-            "harry", "hpotter@test.com", "password", "password"
+            "harry", "hpotter@test.com", "P@ssword!", "P@ssword!"
         )
 
         # User gets error message and stays on register page
-        self.wait_for_url_to_load('/register')
-        self.wait_for_status_message("Error: Username Already Taken")
+        self.assertRegex(self.browser.current_url, '/register')
+        self.wait_for_alert_message("A user with that username already exists")
 
         # User isn't logged in (sees log in option)
         self.check_user_logged_out()
