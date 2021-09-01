@@ -4,3 +4,8 @@ from django.db import models
 
 class User(AbstractUser):
     pass
+
+
+class Post(models.Model):
+    text = models.CharField(max_length=160)
+

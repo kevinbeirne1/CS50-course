@@ -73,6 +73,51 @@ class FunctionalTest(StaticLiveServerTestCase):
     def wait_for(self, fn):
         return fn()
 
+    def check_user_logged_out(self):
+        """
+        Verify that the user ISNT logged in
+        """
+        login_link = self.browser.find_element_by_xpath(
+            '//a[@class="nav-link"][text()="Log In"]'
+        )
+        self.assertIn('Log In', login_link.text)
+
+    def check_user_logged_in(self):
+        """Verify that the user IS logged in"""
+        logout_link = self.browser.find_element_by_xpath(
+            '//a[@class="nav-link"][text()="Log Out"]'
+        )
+        self.assertIn('Log Out', logout_link.text)
+
+    def wait_for_url_to_load(self, url):
+        self.wait_for(lambda: self.assertRegex(
+            self.browser.current_url, f'{url}$'
+        ))
+
+    def wait_for_alert_message(self, expected_message):
+        """
+        Wait for alert to appear with the provided alert message.
+        Click to dismiss the alert and verify that the alert disappears
+        """
+        status_message = self.browser.find_element_by_xpath(
+            '//*[starts-with(@class, "alert")]'
+        )
+        self.wait_for(lambda: self.assertIn(
+            expected_message,
+            status_message.text
+        ))
+
+        dismiss_alert_button = self.browser.find_element_by_xpath(
+            "//button[@data-dismiss='alert']"
+        )
+        dismiss_alert_button.click()
+
+        status_messages = self.browser.find_elements_by_xpath(
+            '//*[starts-with(@class, "alert")]'
+        )
+
+        self.wait_for(lambda: self.assertEqual(len(status_messages), 0))
+
 
 class LoggedInFunctionalTest(FunctionalTest):
 
@@ -80,8 +125,7 @@ class LoggedInFunctionalTest(FunctionalTest):
         user = User.objects.create_user(
             username='harry',
             email='hpotter@test.com',
-            password='password',
+            password='P@ssword!',
         )
-
+        super(LoggedInFunctionalTest, self).setUp()
         self.client.force_login(user)
-        super().setUp(self)

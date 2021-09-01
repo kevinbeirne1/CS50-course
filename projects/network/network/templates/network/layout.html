@@ -16,7 +16,7 @@
             <a class="navbar-brand" href="#">Network</a>
           
             <div>
-              <ul class="navbar-nav mr-auto">
+                <ul class="navbar-nav mr-auto">
                 {% if user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link" href="#"><strong>{{ user.username }}</strong></a>
@@ -30,6 +30,9 @@
                         <a class="nav-link" href="#">Following</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{% url 'network:new_post' %}">New Post</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{% url 'network:logout' %}">Log Out</a>
                     </li>
                 {% else %}
@@ -40,7 +43,7 @@
                         <a class="nav-link" href="{% url 'network:register' %}">Register</a>
                     </li>
                 {% endif %}
-              </ul>
+                </ul>
             </div>
           </nav>
         

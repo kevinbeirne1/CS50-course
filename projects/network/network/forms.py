@@ -13,3 +13,12 @@ class CreateUserForm(UserCreationForm):
             "username",
             "email",
         ]
+
+
+class PostForm(forms.ModelForm):
+
+    class Meta:
+        model = models.Post
+        fields = [
+            'text'
+        ]

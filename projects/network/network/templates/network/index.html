@@ -1,5 +1,9 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    TODO
+    {% for post in object %}
+        <div>{{ post.text }}</div>
+    {% endfor %}
+
+    A new post
 {% endblock %}

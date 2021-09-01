@@ -4,33 +4,12 @@ from unittest import skip
 from django.contrib.auth import get_user_model
 from selenium.webdriver.common.keys import Keys
 
-from .base import FunctionalTest, wait
+from .base import FunctionalTest
 
 User = get_user_model()
 
 
 class LoginTest(FunctionalTest):
-
-    def check_user_logged_out(self):
-        """
-        Verify that the user ISNT logged in
-        """
-        login_link = self.browser.find_element_by_xpath(
-            '//a[@class="nav-link"][text()="Log In"]'
-        )
-        self.assertIn('Log In', login_link.text)
-
-    def check_user_logged_in(self):
-        """Verify that the user IS logged in"""
-        logout_link = self.browser.find_element_by_xpath(
-            '//a[@class="nav-link"][text()="Log Out"]'
-        )
-        self.assertIn('Log Out', logout_link.text)
-
-    def wait_for_url_to_load(self, url):
-        self.wait_for(lambda: self.assertRegex(
-            self.browser.current_url, url
-        ))
 
     def wait_for_register_page_from_nav_bar(self):
         """
@@ -67,30 +46,6 @@ class LoginTest(FunctionalTest):
         )
 
         register_button.click()
-
-    def wait_for_alert_message(self, expected_message):
-        """
-        Wait for alert to appear with the provided alert message.
-        Click to dismiss the alert and verify that the alert disappears
-        """
-        status_message = self.browser.find_element_by_xpath(
-            '//*[starts-with(@class, "alert")]'
-        )
-        self.wait_for(lambda: self.assertIn(
-            expected_message,
-            status_message.text
-        ))
-
-        dismiss_alert_button = self.browser.find_element_by_xpath(
-            "//button[@data-dismiss='alert']"
-        )
-        dismiss_alert_button.click()
-
-        status_messages = self.browser.find_elements_by_xpath(
-            '//*[starts-with(@class, "alert")]'
-        )
-
-        self.wait_for(lambda: self.assertEqual(len(status_messages), 0))
 
     def test_user_can_create_new_account(self):
         """
@@ -185,7 +140,6 @@ class LoginTest(FunctionalTest):
         login_button.click()
 
         # User gets success notification and is redirected to homepage
-        self.wait_for_url_to_load('/')
 
         self.wait_for_alert_message("Log In Complete")
 

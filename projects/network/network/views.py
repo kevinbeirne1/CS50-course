@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView as LoginViewBase
 from django.contrib.auth.views import LogoutView as LogoutViewBase
 from django.contrib.messages.views import SuccessMessageMixin
@@ -8,18 +9,27 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.datastructures import MultiValueDictKeyError
-from django.views.generic import CreateView
+from django.views.generic import CreateView, DetailView
 
-from .forms import CreateUserForm
-from .models import User
+from .forms import CreateUserForm, PostForm
+from .models import Post, User
 
 REGISTER_SUCCESS_MESSAGE = "New Account Created"
 LOGIN_SUCCESS_MESSAGE = "Log In Completed"
 LOGIN_FAILURE_MESSAGE = "Invalid username and/or password"
 LOGOUT_SUCCESS_MESSAGE = "Logged out successfully"
 
+
 def index(request):
     return render(request, "network/index.html")
+
+
+class IndexView(DetailView):
+    template_name = "network/index.html"
+    model = Post
+
+    def get_object(self, queryset=None):
+        return self.model.objects.all()
 
 
 class LoginView(SuccessMessageMixin,  LoginViewBase):
@@ -61,3 +71,14 @@ class RegisterView(CreateView):
         if request.user.is_authenticated:
             return redirect(self.success_url)
         return super().get(self, request, args, kwargs)
+
+
+class NewPostView(LoginRequiredMixin, CreateView):
+    template_name = "network/new_post.html"
+    model = Post
+    form_class = PostForm
+    success_url = reverse_lazy('network:index')
+
+    def handle_no_permission(self):
+        return redirect('network:index')
+    pass
