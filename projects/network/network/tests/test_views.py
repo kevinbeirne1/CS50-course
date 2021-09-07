@@ -1,10 +1,11 @@
 import copy
+import unittest
 from unittest import skip
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 from django.contrib.auth import get_user_model
 from django.contrib.messages import get_messages
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponseRedirect
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from django.utils.html import escape
@@ -12,7 +13,8 @@ from django.utils.html import escape
 from ..forms import CreateUserForm
 from ..models import Post
 from ..views import (LOGIN_SUCCESS_MESSAGE, LOGOUT_SUCCESS_MESSAGE,
-                     REGISTER_SUCCESS_MESSAGE)
+                     REGISTER_SUCCESS_MESSAGE, LoginView, RegisterView)
+from .factories import UserFactory
 
 User = get_user_model()
 
@@ -42,10 +44,12 @@ class IndexViewTest(TestCase):
         """
         Verify that Post instances are passed to 'network/index.html'
         """
-        Post.objects.create(text="A new post")
+
+        user = UserFactory()
+        Post.objects.create(content="A new post", creator=user)
         response = self.client.get(reverse('network:index'))
 
-        response_objects = response.context['object']
+        response_objects = response.context['object_list']
         self.assertIsInstance(response_objects[0], Post)
 
 
@@ -134,11 +138,7 @@ class RegisterViewTest(TestCase):
         Verify that register passes an error messages to response
         when username already exists
         """
-        User.objects.create_user(
-            username='harry',
-            email='hpotter@test.com',
-            password='P@ssword!',
-        )
+        user = UserFactory()
         response = self.client.post(reverse('network:register'), data={
             'username': 'harry',
             'email': 'hpotter@test.com',
@@ -158,37 +158,48 @@ class RegisterViewTest(TestCase):
             'password1': 'P@ssword!',
             'password2': 'P@ssword!',
         })
-        # request = response.wsgi_request
-        # messages = list(get_messages(request))
 
         messages = get_status_messages_from_response(response)
 
         self.assertEqual(len(messages), 1)
         self.assertEqual(str(messages[0]), REGISTER_SUCCESS_MESSAGE)
 
+    def test_register_passes_success_message(self):
+        """
+        Verify that register passes success messages to when account
+        created
+        """
+        response = self.client.post(reverse('network:register'), data={
+            'username': 'harry',
+            'email': 'hpotter@test.com',
+            'password1': 'P@ssword!',
+            'password2': 'P@ssword!',
+        })
+
+        messages = get_status_messages_from_response(response)
+
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), REGISTER_SUCCESS_MESSAGE)
+        # mock_form.save.assert_called_once()
+
     def test_logged_in_user_cannot_access_register(self):
         """
         Verify that a logged in user is redirects to '/' when trying to access
         register
         """
-        user = User.objects.create_user(
-            username='harry',
-            email='hpotter@test.com',
-            password='P@ssword!',
-        )
+        user = UserFactory()
         self.client.force_login(user)
         response = self.client.get(reverse('network:register'))
         self.assertRedirects(response, reverse('network:index'))
 
 
-class LoginViewTest(TestCase):
+class RegisterViewUnitTest(unittest.TestCase):
 
     def setUp(self) -> None:
-        self.user = User.objects.create_user(
-            username='harry',
-            email='hpotter@test.com',
-            password='P@ssword!',
-        )
+        self.request = HttpRequest()
+
+
+class LoginViewTest(TestCase):
 
     def test_login_url(self):
         """
@@ -203,6 +214,8 @@ class LoginViewTest(TestCase):
         self.assertTemplateUsed(response, 'network/login.html')
 
     def test_invalid_login_passes_error_message(self):
+        UserFactory()
+
         response = self.client.post(reverse('network:login'), data={
             'username': 'harry',
             'password': 'pass',
@@ -222,6 +235,8 @@ class LoginViewTest(TestCase):
         """
         Verify that login passes success messages to when user logs in
         """
+        UserFactory()
+
         response = self.client.post(reverse('network:login'), data={
             'username': 'harry',
             'password': 'P@ssword!',
@@ -235,6 +250,8 @@ class LoginViewTest(TestCase):
         """
         Verify that successful login redirects to index
         """
+        UserFactory()
+
         response = self.client.post(reverse('network:login'), data={
             'username': 'harry',
             'password': 'P@ssword!',
@@ -245,6 +262,8 @@ class LoginViewTest(TestCase):
         """
         Verify that successful login logs in the user
         """
+        UserFactory()
+
         response = self.client.post(reverse('network:login'), data={
             'username': 'harry',
             'password': 'P@ssword!',
@@ -257,11 +276,7 @@ class LoginViewTest(TestCase):
 class LogoutViewTest(TestCase):
 
     def setUp(self) -> None:
-        self.user = User.objects.create_user(
-            username='harry',
-            email='hpotter@test.com',
-            password='P@ssword!',
-        )
+        self.user = UserFactory()
         self.client.force_login(self.user)
 
     def test_logout_url(self):
@@ -270,7 +285,6 @@ class LogoutViewTest(TestCase):
         """
         url = reverse('network:logout')
         self.assertEqual(url, '/logout')
-
 
     def test_logout_redirects_to_index(self):
         """
@@ -302,11 +316,7 @@ class LogoutViewTest(TestCase):
 class NewPostViewTest(TestCase):
 
     def setUp(self) -> None:
-        self.user = User.objects.create_user(
-            username='harry',
-            email='hpotter@test.com',
-            password='P@ssword!',
-        )
+        self.user = UserFactory()
         self.client.force_login(self.user)
 
     def test_new_post_url(self):
@@ -352,7 +362,7 @@ class NewPostViewTest(TestCase):
         """Verify that a logged out user cannot create instance of Post"""
         self.client.logout()
         self.client.post(reverse('network:new_post'), data={
-            "text": "A new post"
+            "content": "A new post"
         })
 
         self.assertEqual(Post.objects.count(), 0)
@@ -360,19 +370,21 @@ class NewPostViewTest(TestCase):
     def test_valid_new_post_creates_post(self):
         """Verify that a logged in user can create instance of Post"""
 
-        response = self.client.post(reverse('network:new_post'), data={
-            "text": "A new post"
+        self.client.post(reverse('network:new_post'), data={
+            "content": "A new post",
+            "creator": self.user.id,
+            "pub_date": Mock()
         })
-
         new_post = Post.objects.first()
 
         self.assertEqual(Post.objects.count(), 1)
-        self.assertEqual(new_post.text, "A new post")
+        self.assertEqual(new_post.content, "A new post")
 
     def test_valid_new_post_redirects_to_index(self):
         """Verify that a logged out user cannot create instance of Post"""
         response = self.client.post(reverse('network:new_post'), data={
-            "text": "A new post"
+            "content": "A new post",
+            "creator": self.user.id,
         })
         self.assertRedirects(response, reverse('network:index'))
 

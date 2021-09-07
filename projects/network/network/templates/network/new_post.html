@@ -7,7 +7,10 @@
     <form action="{% url 'network:new_post' %}" method="post">
         {% csrf_token %}
         <div class="form-group">
-            <textarea name="text"></textarea>
+            <input type="hidden" name="creator" value={{ user.id }}>
+<!--            {{ form.creator.label }}{{ form.creator.as_p }}-->
+
+            <textarea name="content"></textarea>
 <!--            <input autofocus class="form-control" type="text" name="username" placeholder="Username">-->
         </div>
 

@@ -83,6 +83,9 @@ class NewPostTest(LoggedInFunctionalTest):
 
         page_text = self.browser.find_element_by_xpath('//*[body]').text
         self.wait_for(lambda: self.assertIn("A new post", page_text))
+        self.wait_for(lambda: self.assertIn("Post Creator: harry", page_text))
+        self.wait_for(lambda: self.assertIn("Date Posted: ", page_text))
 
-        pass
+
+
 

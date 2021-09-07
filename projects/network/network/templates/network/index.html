@@ -1,9 +1,18 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    {% for post in object %}
-        <div>{{ post.text }}</div>
+    {% for post in object_list %}
+<!--        {{ object.text }}-->
+        <div class="container">
+<!--            <div class="row" name="post_media">-->
+                <div>Post Text: {{ post.content }}</div>
+                <div>Post Creator: {{ post.creator }}</div>
+                <div>Date Posted: {{ post.pub_date }}</div>
+<!--                <div>Creation Date: {{ post.date }}</div>-->
+<!--                <div>Like Count: {{ post.likes }}</div>-->
+
+<!--            </div>-->
+        </div>
     {% endfor %}
 
-    A new post
 {% endblock %}

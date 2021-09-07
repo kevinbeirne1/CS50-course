@@ -15,10 +15,13 @@ class CreateUserForm(UserCreationForm):
         ]
 
 
-class PostForm(forms.ModelForm):
+class NewPostForm(forms.ModelForm):
 
     class Meta:
         model = models.Post
         fields = [
-            'text'
+            'content',
+            'creator',
+            # 'pub_date'
+
         ]

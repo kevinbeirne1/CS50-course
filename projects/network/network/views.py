@@ -9,9 +9,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.datastructures import MultiValueDictKeyError
-from django.views.generic import CreateView, DetailView
+from django.views.generic import CreateView, DetailView, ListView
 
-from .forms import CreateUserForm, PostForm
+from .forms import CreateUserForm, NewPostForm
 from .models import Post, User
 
 REGISTER_SUCCESS_MESSAGE = "New Account Created"
@@ -24,12 +24,9 @@ def index(request):
     return render(request, "network/index.html")
 
 
-class IndexView(DetailView):
+class IndexView(ListView):
     template_name = "network/index.html"
     model = Post
-
-    def get_object(self, queryset=None):
-        return self.model.objects.all()
 
 
 class LoginView(SuccessMessageMixin,  LoginViewBase):
@@ -76,9 +73,8 @@ class RegisterView(CreateView):
 class NewPostView(LoginRequiredMixin, CreateView):
     template_name = "network/new_post.html"
     model = Post
-    form_class = PostForm
+    form_class = NewPostForm
     success_url = reverse_lazy('network:index')
 
     def handle_no_permission(self):
         return redirect('network:index')
-    pass
