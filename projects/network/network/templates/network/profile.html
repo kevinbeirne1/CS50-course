@@ -1,0 +1,12 @@
+{% extends "network/index.html" %}
+
+{% block extra_content %}
+    <div name="profile_details">
+        <h2>User Profile: </h2>
+        <div name="profile_name">Username: {{ profile }}</div>
+        <div name="followers">Followers: {{ profile.followers_count }}</div>
+        <div name="following">Following: {{ profile.following_count }}</div>
+
+    </div>
+{% endblock %}
+

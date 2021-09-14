@@ -17,11 +17,15 @@ class CreateUserForm(UserCreationForm):
 
 class NewPostForm(forms.ModelForm):
 
+    def __init__(self, *args, **kwargs):
+        super(NewPostForm, self).__init__(*args, **kwargs)
+        self.fields['pub_date'].required = False
+
     class Meta:
         model = models.Post
         fields = [
             'content',
             'creator',
-            # 'pub_date'
+            'pub_date'
 
         ]

@@ -2,12 +2,9 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-from django.contrib.auth import get_user_model
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.contrib.staticfiles.testing import LiveServerTestCase
+from network.tests.factories import PostFactory, UserFactory
 from selenium import webdriver
-
-User = get_user_model()
-
 from selenium.common.exceptions import WebDriverException
 
 MAX_WAIT = 5
@@ -27,11 +24,11 @@ def wait(fn):
     return modified_fn
 
 
-class FunctionalTest(StaticLiveServerTestCase):
+class FunctionalTest(LiveServerTestCase):
 
     def setUp(self) -> None:
         options = webdriver.FirefoxOptions()
-        # options.add_argument('--headless')
+        options.add_argument('--headless')
         self.browser = webdriver.Firefox(options=options)
 
     def tearDown(self) -> None:
@@ -89,10 +86,60 @@ class FunctionalTest(StaticLiveServerTestCase):
         )
         self.assertIn('Log Out', logout_link.text)
 
+    def log_in_user(self, user):
+        """Log provided user into selenium browser"""
+        # Isn't logged in (sees log in option)
+        login_link = self.browser.find_element_by_xpath(
+            '//a[@class="nav-link"][text()="Log In"]'
+        )
+        self.assertIn('Log In', login_link.text)
+
+        # Clicks log in nav bar
+        login_link.click()
+
+        # brought to the login page
+        self.wait_for(lambda: self.assertRegex(
+            self.browser.current_url, '/login/'
+        ))
+
+        # Enters account email & password
+        login_form_boxes = self.browser.find_elements_by_xpath(
+            "//form[@action='/login/']/div//input"
+        )
+        username_box, password_box = login_form_boxes
+
+        username_box.send_keys(user.username)
+        password_box.send_keys("P@ssword!")
+
+        login_button = self.browser.find_element_by_xpath(
+            "//input[@value='Log In']"
+        )
+
+        # Clicks log in
+        login_button.click()
+
+        # User is logged in (see log out option)
+        self.check_user_logged_in()
+
+    def log_out_user(self):
+        """Log user out of selenium browser"""
+        logout_link = self.browser.find_element_by_xpath(
+            '//a[@class="nav-link"][text()="Log Out"]'
+        )
+        logout_link.click()
+
+        # User is logged out (see log in option)
+        self.check_user_logged_out()
+
     def wait_for_url_to_load(self, url):
+        """
+        Wait for provided url to load & verify that 404 error not raised
+        """
         self.wait_for(lambda: self.assertRegex(
             self.browser.current_url, f'{url}$'
         ))
+        body = self.browser.find_element_by_xpath("//body").text
+        self.assertNotIn('not found', body.lower())
 
     def wait_for_alert_message(self, expected_message):
         """
@@ -119,13 +166,13 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.wait_for(lambda: self.assertEqual(len(status_messages), 0))
 
 
-class LoggedInFunctionalTest(FunctionalTest):
+class PreCreatedPostsFunctionalTest(FunctionalTest):
 
     def setUp(self) -> None:
-        user = User.objects.create_user(
-            username='harry',
-            email='hpotter@test.com',
-            password='P@ssword!',
-        )
-        super(LoggedInFunctionalTest, self).setUp()
-        self.client.force_login(user)
+        """Pre create posts to display in index view"""
+        super(PreCreatedPostsFunctionalTest, self).setUp()
+        PostFactory.reset_sequence()
+        PostFactory.create_batch(6)
+        PostFactory.create_batch(2, creator=UserFactory(username='harry'))
+
+        # PostFactory(creator=UserFactory(username='harry'))

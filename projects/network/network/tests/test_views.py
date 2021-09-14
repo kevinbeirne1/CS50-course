@@ -3,18 +3,20 @@ import unittest
 from unittest import skip
 from unittest.mock import MagicMock, Mock, patch
 
+import pytz
 from django.contrib.auth import get_user_model
 from django.contrib.messages import get_messages
 from django.http import HttpRequest, HttpResponseRedirect
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.html import escape
 
 from ..forms import CreateUserForm
 from ..models import Post
-from ..views import (LOGIN_SUCCESS_MESSAGE, LOGOUT_SUCCESS_MESSAGE,
-                     REGISTER_SUCCESS_MESSAGE, LoginView, RegisterView)
-from .factories import UserFactory
+from ..views import (LOGIN_FAILURE_MESSAGE, LOGIN_SUCCESS_MESSAGE,
+                     LOGOUT_SUCCESS_MESSAGE, REGISTER_SUCCESS_MESSAGE)
+from .factories import PostFactory, UserFactory
 
 User = get_user_model()
 
@@ -45,8 +47,7 @@ class IndexViewTest(TestCase):
         Verify that Post instances are passed to 'network/index.html'
         """
 
-        user = UserFactory()
-        Post.objects.create(content="A new post", creator=user)
+        PostFactory()
         response = self.client.get(reverse('network:index'))
 
         response_objects = response.context['object_list']
@@ -57,10 +58,10 @@ class RegisterViewTest(TestCase):
 
     def test_register_url(self):
         """
-        Verify that register url is '/register'
+        Verify that register url is '/register/'
         """
         url = reverse('network:register')
-        self.assertEqual(url, '/register')
+        self.assertEqual(url, '/register/')
 
     def test_register_returns_correct_html(self):
         """Verify that '/register' uses 'network/register.html' template"""
@@ -138,7 +139,7 @@ class RegisterViewTest(TestCase):
         Verify that register passes an error messages to response
         when username already exists
         """
-        user = UserFactory()
+        user = UserFactory(username='harry')
         response = self.client.post(reverse('network:register'), data={
             'username': 'harry',
             'email': 'hpotter@test.com',
@@ -164,24 +165,6 @@ class RegisterViewTest(TestCase):
         self.assertEqual(len(messages), 1)
         self.assertEqual(str(messages[0]), REGISTER_SUCCESS_MESSAGE)
 
-    def test_register_passes_success_message(self):
-        """
-        Verify that register passes success messages to when account
-        created
-        """
-        response = self.client.post(reverse('network:register'), data={
-            'username': 'harry',
-            'email': 'hpotter@test.com',
-            'password1': 'P@ssword!',
-            'password2': 'P@ssword!',
-        })
-
-        messages = get_status_messages_from_response(response)
-
-        self.assertEqual(len(messages), 1)
-        self.assertEqual(str(messages[0]), REGISTER_SUCCESS_MESSAGE)
-        # mock_form.save.assert_called_once()
-
     def test_logged_in_user_cannot_access_register(self):
         """
         Verify that a logged in user is redirects to '/' when trying to access
@@ -193,38 +176,35 @@ class RegisterViewTest(TestCase):
         self.assertRedirects(response, reverse('network:index'))
 
 
-class RegisterViewUnitTest(unittest.TestCase):
-
-    def setUp(self) -> None:
-        self.request = HttpRequest()
-
-
 class LoginViewTest(TestCase):
 
     def test_login_url(self):
         """
-        Verify that login url is '/login'
+        Verify that login url is '/login/'
         """
         url = reverse('network:login')
-        self.assertEqual(url, '/login')
+        self.assertEqual(url, '/login/')
 
     def test_login_returns_correct_html(self):
-        """Verify that '/login' uses 'network/login.html' template"""
+        """Verify that LoginView uses 'network/login.html' template"""
         response = self.client.get(reverse('network:login'))
         self.assertTemplateUsed(response, 'network/login.html')
 
     def test_invalid_login_passes_error_message(self):
-        UserFactory()
+        """
+        Verify invalid LoginView POST passes error message
+        """
+        UserFactory(username='harry')
 
         response = self.client.post(reverse('network:login'), data={
             'username': 'harry',
             'password': 'pass',
         })
-        self.assertContains(response, escape("Invalid username and/or password"))
+        self.assertContains(response, escape(LOGIN_FAILURE_MESSAGE))
 
     def test_for_invalid_login_renders_login_template(self):
         """
-        Verify that invalid '/login' POST renders network/login.html
+        Verify invalid LoginView POST renders network/login.html
         """
         response = self.client.post(reverse('network:login'))
 
@@ -233,9 +213,9 @@ class LoginViewTest(TestCase):
 
     def test_valid_login_passes_success_message(self):
         """
-        Verify that login passes success messages to when user logs in
+        Verify valid LoginView POST passes success message
         """
-        UserFactory()
+        UserFactory(username='harry')
 
         response = self.client.post(reverse('network:login'), data={
             'username': 'harry',
@@ -248,9 +228,9 @@ class LoginViewTest(TestCase):
 
     def test_valid_login_redirects_to_index(self):
         """
-        Verify that successful login redirects to index
+        Verify valid LoginView POST redirects to index
         """
-        UserFactory()
+        UserFactory(username='harry')
 
         response = self.client.post(reverse('network:login'), data={
             'username': 'harry',
@@ -260,9 +240,9 @@ class LoginViewTest(TestCase):
 
     def test_valid_login_logs_in_user(self):
         """
-        Verify that successful login logs in the user
+        Verify valid LoginView POST logs in the user
         """
-        UserFactory()
+        UserFactory(username='harry')
 
         response = self.client.post(reverse('network:login'), data={
             'username': 'harry',
@@ -288,14 +268,14 @@ class LogoutViewTest(TestCase):
 
     def test_logout_redirects_to_index(self):
         """
-        Verify that '/logout' redirects to index
+        Verify that LogoutView redirects to index
         """
         response = self.client.get(reverse('network:logout'))
         self.assertRedirects(response, reverse('network:index'))
 
     def test_logout_logs_out_user(self):
         """
-        Verify that '/logout' logs out the user
+        Verify that LogoutView logs out the user
         """
         response = self.client.get(reverse('network:logout'))
         request = response.wsgi_request
@@ -304,7 +284,7 @@ class LogoutViewTest(TestCase):
 
     def test_logout_passes_success_message(self):
         """
-        Verify '/logout' passes a logout successful message
+        Verify LogoutView passes a logout successful message
         """
         response = self.client.post(reverse('network:logout'))
         messages = get_status_messages_from_response(response)
@@ -316,42 +296,45 @@ class LogoutViewTest(TestCase):
 class NewPostViewTest(TestCase):
 
     def setUp(self) -> None:
+        """
+        Create user instance and force login
+        """
         self.user = UserFactory()
         self.client.force_login(self.user)
 
     def test_new_post_url(self):
         """
-        Verify that new_post url is '/new_post'
+        Verify that new_post url is '/new_post/'
         """
         url = reverse('network:new_post')
-        self.assertEqual(url, '/new_post')
+        self.assertEqual(url, '/new_post/')
 
     def test_new_post_renders_correct_html(self):
         """
-        Verify that '/new_post' uses 'network/new_post.html' template
+        Verify that NewPostView uses 'network/new_post.html' template
         """
         response = self.client.get(reverse('network:new_post'))
         self.assertTemplateUsed(response, "network/new_post.html")
 
     def test_invalid_new_post_POST_doesnt_create_post_model(self):
         """
-        Verify that invalid POST doesn't create instance of Post
+        Verify that invalid NewPostView POST doesn't create instance of Post
         """
         self.client.post(reverse('network:new_post'))
         self.assertEqual(Post.objects.count(), 0)
 
-    def test_for_invalid_login_renders_login_template(self):
+    def test_for_invalid_new_post_renders_new_post_template(self):
         """
-        Verify that invalid '/login' POST renders network/login.html
+        Verify that invalid NewPostView POST renders network/new_post.html
         """
-        response = self.client.post('/new_post')
+        response = self.client.post(reverse('network:new_post'))
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'network/new_post.html')
 
     def test_unauthenticated_user_cannot_GET_new_post(self):
         """
-        Verify that a logged out user cannot access '/new_post'
+        Verify that a logged out user cannot access '/new_post/'
         """
         self.client.logout()
         response = self.client.get(reverse('network:new_post'))
@@ -369,22 +352,167 @@ class NewPostViewTest(TestCase):
 
     def test_valid_new_post_creates_post(self):
         """Verify that a logged in user can create instance of Post"""
+        date = timezone.now()
 
         self.client.post(reverse('network:new_post'), data={
             "content": "A new post",
             "creator": self.user.id,
-            "pub_date": Mock()
+            "pub_date": date,
         })
         new_post = Post.objects.first()
 
         self.assertEqual(Post.objects.count(), 1)
         self.assertEqual(new_post.content, "A new post")
+        self.assertEqual(new_post.pub_date, date)
 
     def test_valid_new_post_redirects_to_index(self):
-        """Verify that a logged out user cannot create instance of Post"""
+        """Verify that valid NewPostView POST redirects to index"""
         response = self.client.post(reverse('network:new_post'), data={
             "content": "A new post",
             "creator": self.user.id,
         })
         self.assertRedirects(response, reverse('network:index'))
 
+
+class ProfileViewTest(TestCase):
+
+    def setUp(self, *args, **kwargs) -> None:
+        super(ProfileViewTest, self).setUp(*args, **kwargs)
+        self.user = UserFactory(username='harry')
+
+    def test_profile_url(self):
+        """
+        Verify that profile url is '/<profile_name>/'
+        """
+        url = reverse('network:profile', kwargs={
+            'profile_name': 'profile_name',
+        })
+        self.assertEqual(url, '/profile_name/')
+
+    def test_profile_returns_correct_html(self):
+        """
+        Verify that ProfileView uses 'network/profile.html' template
+        """
+        response = self.client.get(reverse('network:profile', kwargs={
+            'profile_name': 'harry',
+        }))
+        self.assertTemplateUsed(response, "network/profile.html")
+
+
+    def test_post_instances_are_passed_to_profile_template(self):
+        """
+        Verify that Post instances are passed to 'network/profile.html'
+        """
+
+        PostFactory(creator=self.user)
+        response = self.client.get(reverse('network:profile', kwargs={
+            'profile_name': 'harry'
+        }))
+
+        response_objects = response.context['object_list']
+        self.assertIsInstance(response_objects[0], Post)
+
+    def test_only_profile_name_instances_are_passed_to_profile_template(self):
+        """
+        Verify that Post instances by <profile_name> are passed to
+        'network/profile.html'
+        """
+
+        PostFactory.create_batch(2, creator=self.user)
+        PostFactory()
+
+        response = self.client.get(reverse('network:profile', kwargs={
+            'profile_name': 'harry'
+        }))
+
+        response_objects = response.context['object_list']
+        self.assertEqual(len(response_objects), 2)
+
+    def test_post_instances_passed_in_reverse_chronological_order(self):
+        """
+        Verify that Post instances are passed in reverse chronological
+        order to ProfileView
+        """
+        PostFactory(creator=self.user, content="A new post")
+        PostFactory(creator=self.user, content="A second post")
+
+        response = self.client.get(reverse('network:profile', kwargs={
+            'profile_name': 'harry'
+        }))
+
+        response_objects = response.context['object_list']
+        first_post = response_objects[0].content
+        second_post = response_objects[1].content
+
+        self.assertEqual(first_post, "A second post")
+        self.assertEqual(second_post, "A new post")
+
+
+class FollowingViewTest(TestCase):
+
+    def setUp(self, *args, **kwargs) -> None:
+        super().setUp(*args, **kwargs)
+        self.user = UserFactory()
+        test_user = UserFactory(username='test_user')
+        PostFactory.create_batch(2, creator=test_user)
+        PostFactory()
+        self.user.following.add(test_user)
+
+
+    def test_following_url(self):
+        """
+        Verify that following url is '/following/'
+        """
+        url = reverse('network:following')
+        self.assertEqual(url, '/following/')
+
+    def test_following_returns_correct_html(self):
+        """
+        Verify that following uses 'network/following.html' template
+        """
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('network:following'))
+        self.assertTemplateUsed(response, "network/following.html")
+
+    def test_post_instances_are_passed_to_following_template(self):
+        """
+        Verify that Post instances are passed to 'network/following.html'
+        """
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse('network:following'))
+
+        response_objects = response.context['object_list']
+        self.assertIsInstance(response_objects[0], Post)
+
+    def test_logged_out_user_cannot_access_following(self):
+        """
+        Verify that a logged out user is redirects to 'login' when trying to
+        access following
+        """
+
+        response = self.client.get(reverse('network:following'))
+        self.assertRedirects(response, reverse('network:login'))
+
+    def test_logged_out_user_gets_error_message(self):
+        """
+        Verify error message is passed to template when anonymous
+        tries to access
+        """
+
+        response = self.client.get(reverse('network:following'))
+        messages = get_status_messages_from_response(response)
+
+        login_required_message = "Login Required"
+        self.assertEqual(str(messages[0]), login_required_message)
+
+    def test_only_following_instances_are_passed_to_following_template(self):
+        """
+        Verify that Post instances followed by the user are passed to
+        'network/following.html'
+        """
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse('network:following'))
+        response_objects = response.context['object_list']
+        self.assertEqual(len(response_objects), 2)

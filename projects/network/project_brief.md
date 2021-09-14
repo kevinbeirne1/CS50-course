@@ -3,9 +3,9 @@
 
 - Project have following key deliverables
   - [x] **NEW POST**
-  - [ ] **ALL POSTS**
+  - [x] **ALL POSTS**
   - [ ] **PROFILE PAGE**
-  - [ ] **FOLLOWING**
+  - [x] **FOLLOWING**
   - [ ] **PAGINATION**
   - [ ] **EDIT POST**
   - [ ] **'LIKE' & 'UNLIKE'**
@@ -18,30 +18,30 @@
     - New post link is top of every page, new post on separate page
 ##ALL POSTS
 - [x] 'All Posts' link in nav bar
-  - [ ]Shows all posts by all users in chronological order (newest first)
-- [ ]Each post should include:
+  - [x] Shows all posts by all users in chronological order (newest first)
+- [x] Each post should include:
   - [x] username of poster
   - [x] post content
   - [x] date & time of post creation
-  - [ ] number of likes post has
+  - [x] number of likes post has
 ##PROFILE PAGE
-- [ ] Clicking on a username should load their profile
+- [x] Clicking on a username should load their profile
 - [ ] Profile page should include
-  - [ ] Number of follower the user has
-  - [ ] Number of people the user follows
-  - [ ] Display all their posts in reverse chronological order
+  - [x] Number of follower the user has
+  - [x] Number of people the user follows
+  - [x] Display all their posts in reverse chronological order
   - [ ] Follow/Unfollow Button
     - [ ] Only if user is signed in
-    - [ ] User can't follow/unfollow themselves
 ##FOLLOWING
-- [ ] 'Following' link in nav bar
-  - [ ] Lists all posts by people the user follows
-  - [ ] Behaves the same as 'All Posts' page just with limited set of posts
-  - [ ] The page is only available to users that are signed in
+- [x] 'Following' link in nav bar
+  - [x] Lists all posts by people the user follows
+  - [x] Behaves the same as 'All Posts' page just with limited set of posts
+  - [x] The page is only available to users that are signed in
 ##PAGINATION
 - [ ] On any page, posts are limited to 10
 - [ ] If >10 a 'Next' button should appear to take to the next page of posts
 - [ ] If not on 1st page of posts, a 'Previous' button should appear 
+- [ ] Posts are listed in reverse chronological order
 ##EDIT POST
 - [ ] On a users own post is 'Edit' to edit the post
   - [ ] On clicking 'Edit', text is replaced by textarea that user can edit the post

@@ -96,7 +96,7 @@ class NewPostFormTest(TestCase):
         form = NewPostForm(form_data)
         self.assertTrue(form.is_valid())
 
-    def test_blank_pub_date_field_defaults_to_datetime_now(self):
+    def test_blank_pub_date_field_defaults_to_timezone_now(self):
         """
         Verify that pub_date defaults to datetime.now when content field isn't provided
         """
@@ -113,8 +113,10 @@ class NewPostFormTest(TestCase):
         Verify that NewPostForm has content, creator, pub_date fields
         """
         form = NewPostForm()
-        expected_form_fields = ['content', 'creator']
+        expected_form_fields = ['content', 'creator', 'pub_date']
         actual_form_fields = form.fields
+
+        self.assertEqual(len(expected_form_fields), len(actual_form_fields))
 
         for expected_field in expected_form_fields:
             with self.subTest():

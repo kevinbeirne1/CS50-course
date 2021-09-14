@@ -6,7 +6,7 @@ from django.contrib.auth.views import LogoutView as LogoutViewBase
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.datastructures import MultiValueDictKeyError
 from django.views.generic import CreateView, DetailView, ListView
@@ -18,6 +18,7 @@ REGISTER_SUCCESS_MESSAGE = "New Account Created"
 LOGIN_SUCCESS_MESSAGE = "Log In Completed"
 LOGIN_FAILURE_MESSAGE = "Invalid username and/or password"
 LOGOUT_SUCCESS_MESSAGE = "Logged out successfully"
+LOGIN_REQUIRED_MESSAGE = "Login Required"
 
 
 def index(request):
@@ -76,5 +77,37 @@ class NewPostView(LoginRequiredMixin, CreateView):
     form_class = NewPostForm
     success_url = reverse_lazy('network:index')
 
+
+class ProfileView(ListView):
+    model = Post
+    template_name = "network/profile.html"
+
+    def get_queryset(self):
+        self.profile = get_object_or_404(
+            User, username=self.kwargs['profile_name'])
+        return Post.objects.filter(creator=self.profile)
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(ProfileView, self).get_context_data(**kwargs)
+        context['profile'] = self.profile
+        return context
+
+
+class FollowingView(LoginRequiredMixin, ListView):
+    model = Post
+    template_name = "network/following.html"
+
     def handle_no_permission(self):
-        return redirect('network:index')
+        """
+        Add error message & redirect if anonymous user accesses view
+        """
+        messages.add_message(self.request, messages.ERROR,
+                             LOGIN_REQUIRED_MESSAGE)
+        return redirect('network:login')
+
+    def get_queryset(self):
+        """
+        Get QuerySet of all posts by accounts user follows
+        """
+        following = self.request.user.following.all()
+        return Post.objects.filter(creator__in=following)

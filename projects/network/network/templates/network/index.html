@@ -1,17 +1,19 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
+    {% block extra_content %}
+    {% endblock %}
+
     {% for post in object_list %}
 <!--        {{ object.text }}-->
         <div class="container">
-<!--            <div class="row" name="post_media">-->
-                <div>Post Text: {{ post.content }}</div>
-                <div>Post Creator: {{ post.creator }}</div>
-                <div>Date Posted: {{ post.pub_date }}</div>
-<!--                <div>Creation Date: {{ post.date }}</div>-->
-<!--                <div>Like Count: {{ post.likes }}</div>-->
+            <div  name="post_media" style="border: 5px solid black; margin: 3px ">
+                <div name="content">Post Text: {{ post.content }}</div>
+                <div name="creator">Post Creator: <a id="creator" href="{% url 'network:profile' post.creator %}">{{ post.creator }}</a></div>
+                <div name="pub_date">Date Posted: {{ post.pub_date }}</div>
+                <div name="likes">Likes: {{ post.likes_count }}</div>
 
-<!--            </div>-->
+            </div>
         </div>
     {% endfor %}
 

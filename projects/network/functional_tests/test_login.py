@@ -2,7 +2,7 @@ from time import sleep
 from unittest import skip
 
 from django.contrib.auth import get_user_model
-from selenium.webdriver.common.keys import Keys
+from network.tests.factories import UserFactory
 
 from .base import FunctionalTest
 
@@ -21,7 +21,7 @@ class LoginTest(FunctionalTest):
         )
         register_link.click()
 
-        self.wait_for_url_to_load('/register')
+        self.wait_for_url_to_load('/register/')
 
     def register_user_info_and_click_register(
             self, username, email, password, confirmation
@@ -31,7 +31,7 @@ class LoginTest(FunctionalTest):
         and password confirmation and click the register button
         """
         register_form_boxes = self.browser.find_elements_by_xpath(
-            "//form[@action='/register']/div//input"
+            "//form[@action='/register/']/div//input"
         )
         username_box, email_box, password_box, confirmation_box, \
             = register_form_boxes
@@ -80,14 +80,9 @@ class LoginTest(FunctionalTest):
         self.check_user_logged_in()
 
         # User logs out
-        logout_link = self.browser.find_element_by_xpath(
-            '//a[@class="nav-link"][text()="Log Out"]'
-        )
-        logout_link.click()
-        self.check_user_logged_out()
+        self.log_out_user()
 
         self.wait_for_alert_message("Logged out successfully")
-
 
     def test_user_with_account_can_login(self):
         """
@@ -101,57 +96,18 @@ class LoginTest(FunctionalTest):
         Logs in with account
         """
         # User has account (Pre-authenticated account created)
-        user = User.objects.create_user(
-            username='harry',
-            email='hpotter@test.com',
-            password='password',
-            )
+        user = UserFactory()
 
         self.browser.get(self.live_server_url)
 
-        # Isn't logged in (sees log in option)
-        login_link = self.browser.find_element_by_xpath(
-            '//a[@class="nav-link"][text()="Log In"]'
-        )
-        self.assertIn('Log In', login_link.text)
-
-        # Clicks log in nav bar
-        login_link.click()
-
-        # brought to the login page
-        self.wait_for(lambda: self.assertRegex(
-            self.browser.current_url, '/login'
-        ))
-
-        # Enters account email & password
-        login_form_boxes = self.browser.find_elements_by_xpath(
-            "//form[@action='/login']/div//input"
-        )
-        username_box, password_box = login_form_boxes
-
-        username_box.send_keys("harry")
-        password_box.send_keys('password')
-
-        login_button = self.browser.find_element_by_xpath(
-            "//input[@value='Log In']"
-        )
-
-        # Clicks log in
-        login_button.click()
+        # user logs in
+        self.log_in_user(user)
 
         # User gets success notification and is redirected to homepage
-
         self.wait_for_alert_message("Log In Complete")
 
-        # User is logged in (see log out option)
-        self.check_user_logged_in()
-
         # User logs out
-        logout_link = self.browser.find_element_by_xpath(
-            '//a[@class="nav-link"][text()="Log Out"]'
-        )
-        logout_link.click()
-        self.check_user_logged_out()
+        self.log_out_user()
 
         self.wait_for_alert_message("Logged out successfully")
 
@@ -167,12 +123,7 @@ class LoginTest(FunctionalTest):
         User is not logged in (see log in option)
         """
         # User has account (Pre-authenticated account created)
-
-        user = User.objects.create_user(
-            username='harry',
-            email='hpotter@test.com',
-            password='P@ssword!',
-        )
+        UserFactory(username='harry')
 
         # User goes to the homepage
         self.browser.get(self.live_server_url)

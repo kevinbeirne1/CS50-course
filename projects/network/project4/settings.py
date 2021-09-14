@@ -133,3 +133,4 @@ MESSAGE_TAGS = {
 }
 
 LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = '/login/'
