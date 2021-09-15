@@ -6,7 +6,7 @@
   - [x] **ALL POSTS**
   - [ ] **PROFILE PAGE**
   - [x] **FOLLOWING**
-  - [ ] **PAGINATION**
+  - [x] **PAGINATION**
   - [ ] **EDIT POST**
   - [ ] **'LIKE' & 'UNLIKE'**
 
@@ -38,10 +38,10 @@
   - [x] Behaves the same as 'All Posts' page just with limited set of posts
   - [x] The page is only available to users that are signed in
 ##PAGINATION
-- [ ] On any page, posts are limited to 10
-- [ ] If >10 a 'Next' button should appear to take to the next page of posts
-- [ ] If not on 1st page of posts, a 'Previous' button should appear 
-- [ ] Posts are listed in reverse chronological order
+- [x] On any page, posts are limited to 10
+- [x] If >10 a 'Next' button should appear to take to the next page of posts
+- [x] If not on 1st page of posts, a 'Previous' button should appear 
+- [x] Posts are listed in reverse chronological order
 ##EDIT POST
 - [ ] On a users own post is 'Edit' to edit the post
   - [ ] On clicking 'Edit', text is replaced by textarea that user can edit the post

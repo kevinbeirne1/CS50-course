@@ -28,6 +28,7 @@ def index(request):
 class IndexView(ListView):
     template_name = "network/index.html"
     model = Post
+    paginate_by = 10
 
 
 class LoginView(SuccessMessageMixin,  LoginViewBase):
@@ -77,10 +78,14 @@ class NewPostView(LoginRequiredMixin, CreateView):
     form_class = NewPostForm
     success_url = reverse_lazy('network:index')
 
+    def handle_no_permission(self):
+        return redirect('network:index')
+
 
 class ProfileView(ListView):
     model = Post
     template_name = "network/profile.html"
+    paginate_by = 10
 
     def get_queryset(self):
         self.profile = get_object_or_404(
@@ -96,6 +101,7 @@ class ProfileView(ListView):
 class FollowingView(LoginRequiredMixin, ListView):
     model = Post
     template_name = "network/following.html"
+    paginate_by = 10
 
     def handle_no_permission(self):
         """

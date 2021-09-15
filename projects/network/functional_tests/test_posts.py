@@ -1,3 +1,4 @@
+from datetime import datetime
 from time import sleep
 from unittest import skip
 
@@ -93,9 +94,13 @@ class AllPostsTest(PreCreatedPostsFunctionalTest):
         # User loads the home page
         self.browser.get(self.live_server_url)
 
-        pub_dates = self.browser.find_elements_by_xpath(
+        pub_dates_elements = self.browser.find_elements_by_xpath(
             "//*[@name='pub_date']")
-        pub_dates = [pub_date.text.split(': ')[1] for pub_date in pub_dates]
+        pub_dates_strings = (pub_date.text.split(': ')[1] for
+                             pub_date in pub_dates_elements)
+        pub_dates = [datetime.strptime(pub_date, "%d, %b, %Y %H:%M") for
+                     pub_date in pub_dates_strings]
+
         for i, pub_date in enumerate(pub_dates[:-1]):
             with self.subTest():
                 self.assertGreater(pub_date, pub_dates[i + 1])
@@ -236,7 +241,7 @@ class FollowingTest(PreCreatedPostsFunctionalTest):
     def test_can_view_user_profile_from_following(self):
         """
         Logged in user:
-        - opens the following
+        - opens the following page
         - sees post creators listed under their posts
         - clicks on the user 'harry's name
         - 'harry's profile loads
@@ -268,7 +273,7 @@ class FollowingTest(PreCreatedPostsFunctionalTest):
     def test_posts_in_chronological_order(self):
         """
         Logged in user:
-        - opens following
+        - opens the following page
         - sees posts in chronological order
         """
         # User loads the home page
@@ -283,9 +288,13 @@ class FollowingTest(PreCreatedPostsFunctionalTest):
 
         self.wait_for_url_to_load('/following/')
 
-        pub_dates = self.browser.find_elements_by_xpath(
+        pub_dates_elements = self.browser.find_elements_by_xpath(
             "//*[@name='pub_date']")
-        pub_dates = [pub_date.text.split(': ')[1] for pub_date in pub_dates]
+        pub_dates_strings = (pub_date.text.split(': ')[1] for
+                             pub_date in pub_dates_elements)
+        pub_dates = [datetime.strptime(pub_date, "%d, %b, %Y %H:%M") for
+                     pub_date in pub_dates_strings]
+
         for i, pub_date in enumerate(pub_dates[:-1]):
             with self.subTest():
                 self.assertGreater(pub_date, pub_dates[i + 1])

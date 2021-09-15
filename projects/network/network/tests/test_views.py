@@ -28,6 +28,10 @@ def get_status_messages_from_response(response):
 
 class IndexViewTest(TestCase):
 
+    def tearDown(self) -> None:
+        super().tearDown()
+        PostFactory.reset_sequence()
+
     def test_index_url(self):
         """
         Verify that index url is '/'
@@ -52,6 +56,34 @@ class IndexViewTest(TestCase):
 
         response_objects = response.context['object_list']
         self.assertIsInstance(response_objects[0], Post)
+
+    def test_post_instances_passed_in_reverse_chronological_order(self):
+        """
+        Verify that Post instances are passed in reverse chronological
+        order to IndexView
+        """
+
+        response = self.client.get(reverse('network:index'))
+
+        response_objects = response.context['object_list']
+        pub_dates = [post.pub_date for post in response_objects]
+        sorted_pub_dates = sorted(pub_dates, reverse=True)
+
+        self.assertEqual(pub_dates, sorted_pub_dates)
+
+    def test_pagination_passed_to_index_template(self):
+        """
+        Verify that Posts are paginated in groups of 10
+        :return:
+        """
+        PostFactory.create_batch(11)
+        response = self.client.get(reverse('network:index'))
+        pagination_status = response.context['is_paginated']
+
+        self.assertTrue(pagination_status)
+
+        paginated_posts = response.context['page_obj']
+        self.assertEqual(len(paginated_posts), 10)
 
 
 class RegisterViewTest(TestCase):
@@ -377,8 +409,12 @@ class NewPostViewTest(TestCase):
 class ProfileViewTest(TestCase):
 
     def setUp(self, *args, **kwargs) -> None:
-        super(ProfileViewTest, self).setUp(*args, **kwargs)
+        super().setUp(*args, **kwargs)
         self.user = UserFactory(username='harry')
+
+    def tearDown(self) -> None:
+        super().tearDown()
+        PostFactory.reset_sequence()
 
     def test_profile_url(self):
         """
@@ -447,17 +483,34 @@ class ProfileViewTest(TestCase):
         self.assertEqual(first_post, "A second post")
         self.assertEqual(second_post, "A new post")
 
+    def test_pagination_passed_to_profile_template(self):
+        """
+        Verify that Posts are paginated in groups of 10
+        """
+        PostFactory.create_batch(11, creator=self.user)
+        response = self.client.get(reverse('network:profile', kwargs={
+            'profile_name': 'harry'
+        }))
+        pagination_status = response.context['is_paginated']
+
+        self.assertTrue(pagination_status)
+
+        paginated_posts = response.context['page_obj']
+        self.assertEqual(len(paginated_posts), 10)
 
 class FollowingViewTest(TestCase):
 
     def setUp(self, *args, **kwargs) -> None:
         super().setUp(*args, **kwargs)
         self.user = UserFactory()
-        test_user = UserFactory(username='test_user')
-        PostFactory.create_batch(2, creator=test_user)
+        self.test_user = UserFactory(username='test_user')
+        PostFactory.create_batch(2, creator=self.test_user)
         PostFactory()
-        self.user.following.add(test_user)
+        self.user.following.add(self.test_user)
 
+    def tearDown(self) -> None:
+        super().tearDown()
+        PostFactory.reset_sequence()
 
     def test_following_url(self):
         """
@@ -516,3 +569,34 @@ class FollowingViewTest(TestCase):
         response = self.client.get(reverse('network:following'))
         response_objects = response.context['object_list']
         self.assertEqual(len(response_objects), 2)
+
+    def test_post_instances_passed_in_reverse_chronological_order(self):
+        """
+        Verify that Post instances are passed in reverse chronological
+        order to FollowingView
+        """
+
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('network:following'))
+
+        response_objects = response.context['object_list']
+        pub_dates = [post.pub_date for post in response_objects]
+        sorted_pub_dates = sorted(pub_dates, reverse=True)
+
+        self.assertEqual(pub_dates, sorted_pub_dates)
+
+    def test_pagination_passed_to_profile_template(self):
+        """
+        Verify that Posts are paginated in groups of 10
+        """
+        PostFactory.create_batch(11, creator=self.test_user)
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse('network:following'))
+        pagination_status = response.context['is_paginated']
+
+        self.assertTrue(pagination_status)
+
+        paginated_posts = response.context['page_obj']
+        self.assertEqual(len(paginated_posts), 10)
+

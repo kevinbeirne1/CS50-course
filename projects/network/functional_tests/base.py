@@ -174,5 +174,3 @@ class PreCreatedPostsFunctionalTest(FunctionalTest):
         PostFactory.reset_sequence()
         PostFactory.create_batch(6)
         PostFactory.create_batch(2, creator=UserFactory(username='harry'))
-
-        # PostFactory(creator=UserFactory(username='harry'))
