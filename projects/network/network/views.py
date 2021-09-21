@@ -119,33 +119,10 @@ class FollowingView(LoginRequiredMixin, ListView):
         return Post.objects.filter(creator__in=following)
 
 
-class EditPostView(UpdateView):
-    form_class = EditPostForm
-
-    def get(self, request, *args, **kwargs):
-        """
-        Redirect to index when GET request sent to EditPostView
-        """
-        return redirect('network:index')
-
-    def put(self, *args, **kwargs):
-        data = json.loads(self.request.body)
-
-        post_id = data['post_id']
-
-        post = Post.objects.get(creator=self.request.user, id=post_id)
-        post.content = data['content']
-        post.save()
-        return HttpResponse(status=204)
-
-
 def edit_post_view(request):
     if request.method == 'PUT':
-        data = json.loads(request.body)
-        post_id = data['post_id']
-
-        post = Post.objects.get(id=post_id)
-        form = EditPostForm(request.user, data, instance=post)
+        request_data = request.body
+        form = EditPostForm(request.user, request_data)
         if form.is_valid():
             form.save()
             return HttpResponse(status=204)

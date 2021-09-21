@@ -1,3 +1,4 @@
+import json
 import logging
 
 from django import forms
@@ -31,17 +32,38 @@ class NewPostForm(forms.ModelForm):
             'content',
             'creator',
             'pub_date'
-
         ]
 
 
 class EditPostForm(forms.ModelForm):
 
     def __init__(self, user, *args, **kwargs):
-        self.user = user
+        """
+        - user: request.user is passed to form in user, assigned to self.user
+        - data passed to form in JSON format, parsed and reassigned
+        to self.data
+        - self.instance assigned
+
+        """
         super(EditPostForm, self).__init__(*args, **kwargs)
+        self.user = user
+        self.data = self.parse_json_data()
+        self.instance = self.get_instance()
+
+    def parse_json_data(self):
+        """Parse the data in JSON format to python format"""
+        return json.loads(self.data)
+
+    def get_instance(self):
+        """Get the Post instance from the post_id passed in self.data"""
+        post_id = self.data["post_id"]
+        return models.Post.objects.get(id=post_id)
 
     def clean(self):
+        """
+        Verify post creator is self.user by attempting model get while
+        specifying the post id & creator
+        """
         try:
             models.Post.objects.get(
                 id=self.data['post_id'], creator=self.user
