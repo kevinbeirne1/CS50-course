@@ -141,6 +141,7 @@ class LoginTest(FunctionalTest):
 
         # User gets error message and stays on register page
         self.assertRegex(self.browser.current_url, '/register')
+
         self.wait_for_alert_message("A user with that username already exists")
 
         # User isn't logged in (sees log in option)

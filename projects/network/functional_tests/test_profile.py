@@ -23,11 +23,11 @@ class ProfileTest(PreCreatedPostsFunctionalTest):
 
 
         # The page only displays posts by harry
-        posts = self.browser.find_elements_by_xpath("//*[@name='post_media']")
+        posts = self.browser.find_elements_by_xpath("//*[@id='post_media']")
         self.assertEqual(len(posts), 2)
 
         # the posts are in reverse chronological order
-        pub_dates = self.browser.find_elements_by_xpath("//*[@name='pub_date']")
+        pub_dates = self.browser.find_elements_by_xpath("//*[@id='pub_date']")
 
         pub_dates = [re.search(r'.+\:\s(.+)', date.text).group(1) for date in pub_dates]
         second_post_date, first_post_date = pub_dates
@@ -35,13 +35,13 @@ class ProfileTest(PreCreatedPostsFunctionalTest):
 
         # The page displays the number of followers that harry has
         followers = self.browser.find_element_by_xpath(
-            "//div[@name='profile_details']//*[@name='followers']"
+            "//div[@id='profile_details']//*[@id='followers']"
         )
         self.assertEqual(followers.text, "Followers: 0")
 
         # The page displays the number of accounts harry follows
         followers = self.browser.find_element_by_xpath(
-            "//div[@name='profile_details']//*[@name='following']"
+            "//div[@id='profile_details']//*[@id='following']"
         )
         self.assertEqual(followers.text, "Following: 0")
 

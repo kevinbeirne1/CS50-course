@@ -2,7 +2,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-from django.contrib.staticfiles.testing import LiveServerTestCase
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from network.tests.factories import PostFactory, UserFactory
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
@@ -24,7 +24,7 @@ def wait(fn):
     return modified_fn
 
 
-class FunctionalTest(LiveServerTestCase):
+class FunctionalTest(StaticLiveServerTestCase):
 
     def setUp(self) -> None:
         options = webdriver.FirefoxOptions()
@@ -42,6 +42,7 @@ class FunctionalTest(LiveServerTestCase):
                 self.dump_html()
         self.browser.quit()
         super().tearDown()
+        PostFactory.reset_sequence()
 
     def _test_has_failed(self):
         # slightly obscure but couldn't find a better way!
@@ -159,9 +160,13 @@ class FunctionalTest(LiveServerTestCase):
         )
         dismiss_alert_button.click()
 
+        # Wait for message to clear on chrome
+        time.sleep(0.4)
+
         status_messages = self.browser.find_elements_by_xpath(
             '//*[starts-with(@class, "alert")]'
         )
+
 
         self.wait_for(lambda: self.assertEqual(len(status_messages), 0))
 
@@ -171,6 +176,5 @@ class PreCreatedPostsFunctionalTest(FunctionalTest):
     def setUp(self) -> None:
         """Pre create posts to display in index view"""
         super(PreCreatedPostsFunctionalTest, self).setUp()
-        PostFactory.reset_sequence()
         PostFactory.create_batch(6)
         PostFactory.create_batch(2, creator=UserFactory(username='harry'))

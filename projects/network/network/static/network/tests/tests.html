@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Network - Javascript Tests</title>
+    <link rel="stylesheet" href="qunit-2.16.0.css">
+</head>
+<body>
+    <div id="qunit"></div>
+    <div id="qunit-fixture">
+        <div id="post_media">
+            <input type="hidden" id="post_id" value="1">
+            <div id="content">A new post</div>
+            <textarea id="content_textarea" hidden>A new post</textarea>
+            <button class="btn btn-sm btn-outline-primary" id="edit">Edit</button>
+            <button class="btn btn-sm btn-outline-primary" id="save" hidden>Save</button>
+        </div>
+    </div>
+
+    <script src = "https://code.jquery.com/jquery.js"></script>
+
+<!--    <script src="../jquery-3.6.0.min.js"></script>-->
+    <script src="../network.js"></script>
+    <script src="qunit-2.16.0.js"></script>
+
+    <script>
+        console.log("QUnit tests start")
+
+        QUnit.test("Sanity check test that save & textarea not initially visible", (assert) => {
+            window.Network.initialize()
+                assert.equal($('textarea[id="content_textarea"]').is(':visible'), false);
+                assert.equal($('button[id="save"]').is(':visible'), false);
+        });
+
+        QUnit.test("div not visible after clicking edit", (assert) => {
+            window.Network.initialize()
+            let edit_button = $("#edit")
+            edit_button.trigger('click');
+            assert.equal($("#content").is(':visible'), false);
+        });
+
+        QUnit.test("textarea visible after clicking edit", (assert) => {
+            window.Network.initialize()
+            let edit_button = $("#edit")
+            edit_button.trigger('click');
+            assert.equal($('textarea[id="content_textarea"]').is(':visible'), true);
+        });
+
+        QUnit.test("div text the same as textarea text after clicking edit", (assert) => {
+            window.Network.initialize()
+            let edit_button = $("#edit")
+            let div_html = $('#content').text()
+
+            edit_button.trigger('click');
+
+            let text_area_html = $('#content_textarea').text()
+
+            assert.equal(text_area_html, div_html);
+        });
+
+        QUnit.test('Edit button not visible after clicking edit', (assert) => {
+            window.Network.initialize()
+            let edit_button = $("#edit")
+            edit_button.trigger('click');
+            assert.equal(edit_button.is(':visible'), false);
+        });
+
+        QUnit.test('Save button visible after clicking edit', (assert) => {
+            window.Network.initialize()
+            let edit_button = $("#edit")
+            edit_button.trigger('click');
+            assert.equal($('button[id="save"]').is(':visible'), true);
+        });
+        
+        QUnit.test("div visible after clicking save", (assert) => {
+            window.Network.initialize()
+            let edit_button = $("#edit")
+            let save_button = $('#save')
+            edit_button.trigger('click');
+            save_button.trigger('click');
+            assert.equal($("#content").is(':visible'), true);
+        });
+
+        QUnit.test("textarea not visible after clicking save", (assert) => {
+            window.Network.initialize()
+            let edit_button = $("#edit")
+            let save_button = $('#save')
+            edit_button.trigger('click');
+            save_button.trigger('click');
+            assert.equal($('textarea[id="content_textarea"]').is(':visible'), false);
+        });
+
+        QUnit.test("div text the same as textarea text after clicking save", (assert) => {
+            window.Network.initialize()
+            let edit_button = $("#edit")
+            let save_button = $('#save')
+            edit_button.trigger('click');
+
+            let textarea = $("#content_textarea").text('A changed post')
+
+            save_button.trigger('click');
+            let content = $('#content')
+
+            console.log(textarea.text())
+
+            assert.equal(textarea.text(), content.text());
+            assert.equal(content.text(), "A changed post")
+        });
+
+        QUnit.test('Edit button visible after clicking save', (assert) => {
+            window.Network.initialize()
+            let edit_button = $("#edit")
+            let save_button = $('#save')
+            edit_button.trigger('click');
+            save_button.trigger('click');
+            assert.equal(edit_button.is(':visible'), true);
+        });
+
+        QUnit.test('Save button not visible after clicking save', (assert) => {
+            window.Network.initialize()
+            let edit_button = $("#edit")
+            let save_button = $('#save')
+            edit_button.trigger('click');
+            save_button.trigger('click');
+            assert.equal($('button[id="save"]').is(':visible'), false);
+        });
+    </script>
+
+</body>
+</html>

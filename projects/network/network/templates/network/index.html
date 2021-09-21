@@ -5,14 +5,23 @@
     {% endblock %}
 
     {% for post in page_obj %}
+        <script>
+            var csrftoken = '{{ csrf_token }}'
+        </script>
 <!--        {{ object.text }}-->
         <div class="container">
-            <div  name="post_media" style="border: 5px solid black; margin: 3px ">
-                <div name="content">Post Text: {{ post.content }}</div>
-                <div name="creator">Post Creator: <a id="creator" href="{% url 'network:profile' post.creator %}">{{ post.creator }}</a></div>
-                <div name="pub_date">Date Posted: {{ post.pub_date |date:'d, M, Y H:i' }}</div>
-                <div name="likes">Likes: {{ post.likes_count }}</div>
-
+            <div  id="post_media" style="border: 5px solid black; margin: 3px ">
+                <input type="hidden" id="post_id" value={{ post.id }}>
+                <div id="content">{{ post.content }}</div>
+                <textarea id="content_textarea">{{ post.content }}</textarea>
+                <div id="creator_element">Post Creator: <a id="creator" href="{% url 'network:profile' post.creator %}">{{ post.creator }}</a></div>
+                <div id="pub_date">Date Posted: {{ post.pub_date |date:'d, M, Y H:i' }}</div>
+                <div id="likes">Likes: {{ post.likes_count }}</div>
+<!--                {% csrf_token %}-->
+                {% if user == post.creator %}
+                    <button class="btn btn-sm btn-outline-primary" id="edit">Edit</button>
+                    <button class="btn btn-sm btn-outline-primary" id="save">Save</button>
+                {% endif %}
             </div>
         </div>
     {% endfor %}

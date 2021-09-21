@@ -27,7 +27,7 @@ class PaginationTest(FunctionalTest):
         self.browser.get(self.live_server_url)
 
         # Sees 10 posts in the page
-        page1_posts = self.browser.find_elements_by_xpath('//*[@name="post_media"]')
+        page1_posts = self.browser.find_elements_by_xpath('//*[@id="post_media"]')
 
         self.assertEqual(len(page1_posts), 10)
 
@@ -43,7 +43,7 @@ class PaginationTest(FunctionalTest):
         self.wait_for_url_to_load('/?page=2')
 
         # Sees 10 posts in the second page
-        page2_posts = self.browser.find_elements_by_xpath('//*[@name="post_media"]')
+        page2_posts = self.browser.find_elements_by_xpath('//*[@id="post_media"]')
         self.assertEqual(len(page2_posts), 10)
 
         self.assertNotEqual(page2_posts, page1_posts)
@@ -59,7 +59,7 @@ class PaginationTest(FunctionalTest):
         self.wait_for_url_to_load('/?page=3')
 
         # Sees 2 posts in the second page
-        page3_posts = self.browser.find_elements_by_xpath('//*[@name="post_media"]')
+        page3_posts = self.browser.find_elements_by_xpath('//*[@id="post_media"]')
         self.assertEqual(len(page3_posts), 2)
 
         # Doesn't see Next button
@@ -99,7 +99,7 @@ class PaginationTest(FunctionalTest):
         self.browser.get(profile_url)
 
         # Sees 10 posts in the page
-        page1_posts = self.browser.find_elements_by_xpath('//*[@name="post_media"]')
+        page1_posts = self.browser.find_elements_by_xpath('//*[@id="post_media"]')
 
         self.assertEqual(len(page1_posts), 10)
 
@@ -115,7 +115,7 @@ class PaginationTest(FunctionalTest):
         self.wait_for_url_to_load('/?page=2')
 
         # Sees 10 posts in the second page
-        page2_posts = self.browser.find_elements_by_xpath('//*[@name="post_media"]')
+        page2_posts = self.browser.find_elements_by_xpath('//*[@id="post_media"]')
         self.assertEqual(len(page2_posts), 10)
 
         self.assertNotEqual(page2_posts, page1_posts)
@@ -131,7 +131,7 @@ class PaginationTest(FunctionalTest):
         self.wait_for_url_to_load('/?page=3')
 
         # Sees 2 posts in the second page
-        page3_posts = self.browser.find_elements_by_xpath('//*[@name="post_media"]')
+        page3_posts = self.browser.find_elements_by_xpath('//*[@id="post_media"]')
         self.assertEqual(len(page3_posts), 2)
 
         # Doesn't see Next button
@@ -181,7 +181,7 @@ class PaginationTest(FunctionalTest):
         self.browser.get(following_url)
 
         # Sees 10 posts in the page
-        page1_posts = self.browser.find_elements_by_xpath('//*[@name="post_media"]')
+        page1_posts = self.browser.find_elements_by_xpath('//*[@id="post_media"]')
 
         self.assertEqual(len(page1_posts), 10)
 
@@ -197,7 +197,7 @@ class PaginationTest(FunctionalTest):
         self.wait_for_url_to_load('/?page=2')
 
         # Sees 10 posts in the second page
-        page2_posts = self.browser.find_elements_by_xpath('//*[@name="post_media"]')
+        page2_posts = self.browser.find_elements_by_xpath('//*[@id="post_media"]')
         self.assertEqual(len(page2_posts), 10)
 
         self.assertNotEqual(page2_posts, page1_posts)
@@ -213,7 +213,7 @@ class PaginationTest(FunctionalTest):
         self.wait_for_url_to_load('/?page=3')
 
         # Sees 2 posts in the second page
-        page3_posts = self.browser.find_elements_by_xpath('//*[@name="post_media"]')
+        page3_posts = self.browser.find_elements_by_xpath('//*[@id="post_media"]')
         self.assertEqual(len(page3_posts), 2)
 
         # Doesn't see Next button

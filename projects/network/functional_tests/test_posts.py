@@ -47,18 +47,18 @@ class AllPostsTest(PreCreatedPostsFunctionalTest):
         self.browser.get(self.live_server_url)
 
         # All posts are displayed on the homepage
-        posts = self.browser.find_elements_by_xpath('//*[@name="post_media"]')
+        posts = self.browser.find_elements_by_xpath('//*[@id="post_media"]')
         self.assertEqual(len(posts), 8)
 
         for post in posts:
             with self.subTest():
-                content = post.find_element_by_xpath("//*[@name='content']").text
-                creator = post.find_element_by_xpath("//*[@name='creator']").text
-                pub_date = post.find_element_by_xpath("//*[@name='pub_date']").text
-                likes = post.find_element_by_xpath("//*[@name='likes']").text
+                content = post.find_element_by_xpath("//*[@id='content']").text
+                creator = post.find_element_by_xpath("//*[@id='creator']").text
+                pub_date = post.find_element_by_xpath("//*[@id='pub_date']").text
+                likes = post.find_element_by_xpath("//*[@id='likes']").text
 
                 self.assertRegex(content, "Post #\d")
-                self.assertRegex(creator, "Post Creator: .+")
+                self.assertRegex(creator, "harry")
                 self.assertRegex(pub_date, "Date Posted: .+")
                 self.assertEqual(likes, "Likes: 0")
 
@@ -95,7 +95,7 @@ class AllPostsTest(PreCreatedPostsFunctionalTest):
         self.browser.get(self.live_server_url)
 
         pub_dates_elements = self.browser.find_elements_by_xpath(
-            "//*[@name='pub_date']")
+            "//*[@id='pub_date']")
         pub_dates_strings = (pub_date.text.split(': ')[1] for
                              pub_date in pub_dates_elements)
         pub_dates = [datetime.strptime(pub_date, "%d, %b, %Y %H:%M") for
@@ -197,7 +197,7 @@ class FollowingTest(PreCreatedPostsFunctionalTest):
         self.wait_for_url_to_load('/following/')
 
         # All posts are displayed on the homepage
-        posts = self.browser.find_elements_by_xpath('//*[@name="post_media"]')
+        posts = self.browser.find_elements_by_xpath('//*[@id="post_media"]')
         self.assertEqual(len(posts), 5)
 
     def test_following_post_content(self):
@@ -224,17 +224,17 @@ class FollowingTest(PreCreatedPostsFunctionalTest):
         self.wait_for_url_to_load('/following/')
 
         # All posts display the correct information
-        posts = self.browser.find_elements_by_xpath('//*[@name="post_media"]')
+        posts = self.browser.find_elements_by_xpath('//*[@id="post_media"]')
 
         for post in posts:
             with self.subTest():
-                content = post.find_element_by_xpath("//*[@name='content']").text
-                creator = post.find_element_by_xpath("//*[@name='creator']").text
-                pub_date = post.find_element_by_xpath("//*[@name='pub_date']").text
-                likes = post.find_element_by_xpath("//*[@name='likes']").text
+                content = post.find_element_by_xpath("//*[@id='content']").text
+                creator = post.find_element_by_xpath("//*[@id='creator']").text
+                pub_date = post.find_element_by_xpath("//*[@id='pub_date']").text
+                likes = post.find_element_by_xpath("//*[@id='likes']").text
 
                 self.assertRegex(content, "Post #\d")
-                self.assertRegex(creator, "Post Creator: .+")
+                self.assertRegex(creator, "harry")
                 self.assertRegex(pub_date, "Date Posted: .+")
                 self.assertEqual(likes, "Likes: 0")
 
@@ -289,7 +289,7 @@ class FollowingTest(PreCreatedPostsFunctionalTest):
         self.wait_for_url_to_load('/following/')
 
         pub_dates_elements = self.browser.find_elements_by_xpath(
-            "//*[@name='pub_date']")
+            "//*[@id='pub_date']")
         pub_dates_strings = (pub_date.text.split(': ')[1] for
                              pub_date in pub_dates_elements)
         pub_dates = [datetime.strptime(pub_date, "%d, %b, %Y %H:%M") for

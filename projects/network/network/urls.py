@@ -12,5 +12,7 @@ urlpatterns = [
     path("register/", views.RegisterView.as_view(), name='register'),
     path("new_post/", views.NewPostView.as_view(), name='new_post'),
     path("following/", views.FollowingView.as_view(), name='following'),
+    path("edit_post", views.edit_post_view, name="edit_post"),
+    # path("edit_post", views.EditPostView.as_view(), name='edit_post'),
     path("<str:profile_name>/", views.ProfileView.as_view(), name='profile'),
 ]

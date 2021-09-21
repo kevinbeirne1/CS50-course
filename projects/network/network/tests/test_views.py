@@ -1,4 +1,6 @@
 import copy
+import json
+import re
 import unittest
 from unittest import skip
 from unittest.mock import MagicMock, Mock, patch
@@ -540,7 +542,7 @@ class FollowingViewTest(TestCase):
 
     def test_logged_out_user_cannot_access_following(self):
         """
-        Verify that a logged out user is redirects to 'login' when trying to
+        Verify that a logged out user redirects to 'login' when trying to
         access following
         """
 
@@ -599,4 +601,124 @@ class FollowingViewTest(TestCase):
 
         paginated_posts = response.context['page_obj']
         self.assertEqual(len(paginated_posts), 10)
+
+
+class EditPostViewTest(TestCase):
+
+    def test_edit_post_url(self):
+        """
+        Verify that edit_post url is '/edit_post/<post_id>'
+        """
+        url = reverse('network:edit_post')
+        self.assertEqual(url, '/edit_post')
+
+    def test_GET_edit_post_redirect_to_index(self):
+        """
+        Verify that user redirected to 'index' when trying
+        to access edit_post with get request
+        """
+        self.client.force_login(UserFactory())
+        response = self.client.get(reverse('network:edit_post'))
+        self.assertRedirects(response, reverse('network:index'))
+
+    def test_unauthenticated_user_cannot_PUT_edit_post(self):
+        """
+        Verify that an anonymous User cannot PUT to edit post
+        """
+        PostFactory()
+
+        self.client.put(
+            reverse('network:edit_post'),
+            json.dumps({"post_id": 1, "content": "A new post"}),
+            content_type='application/json'
+        )
+
+        post = Post.objects.first()
+        self.assertNotEqual(post.content, "A new post")
+
+    def test_unauthenticated_user_edit_post_PUT_redirects_to_index(self):
+        """
+        Verify that an anonymous User redirected to index when PUT request
+        to edit post
+        """
+        PostFactory()
+
+        response = self.client.put(
+            reverse('network:edit_post'),
+            json.dumps({"post_id": 1, "content": "A new post"}),
+            content_type='application/json'
+        )
+
+        self.assertRedirects(response, reverse('network:index'))
+
+    # @skip
+    def test_user_cannot_PUT_edit_post_on_others_posts(self):
+        """
+        Verify that a logged in User cannot PUT edit post on
+        another persons post
+        """
+        PostFactory()
+        self.client.force_login(UserFactory())
+
+        self.client.put(
+            reverse('network:edit_post'),
+            json.dumps({"post_id": 1, "content": "A new post"}),
+            content_type='application/json'
+        )
+
+        post = Post.objects.first()
+        self.assertNotEqual(post.content, "A new post")
+
+    # @skip
+    def test_user_edit_post_PUT_redirects_to_index_on_others_posts(self):
+        """
+        Verify that a logged in User redirected to index when PUT
+        request to edit post on another users post
+        """
+        PostFactory()
+        self.client.force_login(UserFactory())
+
+        response = self.client.put(
+            reverse('network:edit_post'),
+            json.dumps({"post_id": 1, "content": "A new post"}),
+            content_type='application/json'
+        )
+
+        self.assertRedirects(response, reverse('network:index'))
+
+    def test_valid_edit_post_PUT_doesnt_redirect(self):
+        """
+        Verify that there is no redirect when POST request
+        to edit_post
+        """
+        PostFactory()
+        test_user = User.objects.first()
+        self.client.force_login(test_user)
+
+        response = self.client.put(
+            reverse('network:edit_post'),
+            json.dumps({"post_id": 1, "content": "A new post"}),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 204)
+
+    def test_valid_PUT_edit_post_updates_post(self):
+        """
+        Verify that a valid POST request to edit_post updates
+        Post instance
+        """
+        PostFactory()
+        test_user = User.objects.first()
+        self.client.force_login(test_user)
+
+        self.client.put(
+            reverse('network:edit_post'),
+            json.dumps({"post_id": 1, "content": "A new post"}),
+            content_type='application/json'
+        )
+
+        new_post = Post.objects.first()
+
+        self.assertEqual(new_post.content, "A new post")
 

@@ -1,17 +1,21 @@
+import json
+from json import JSONDecodeError
+
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView as LoginViewBase
 from django.contrib.auth.views import LogoutView as LogoutViewBase
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.datastructures import MultiValueDictKeyError
-from django.views.generic import CreateView, DetailView, ListView
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
-from .forms import CreateUserForm, NewPostForm
+from .forms import CreateUserForm, EditPostForm, NewPostForm
 from .models import Post, User
 
 REGISTER_SUCCESS_MESSAGE = "New Account Created"
@@ -19,10 +23,6 @@ LOGIN_SUCCESS_MESSAGE = "Log In Completed"
 LOGIN_FAILURE_MESSAGE = "Invalid username and/or password"
 LOGOUT_SUCCESS_MESSAGE = "Logged out successfully"
 LOGIN_REQUIRED_MESSAGE = "Login Required"
-
-
-def index(request):
-    return render(request, "network/index.html")
 
 
 class IndexView(ListView):
@@ -117,3 +117,37 @@ class FollowingView(LoginRequiredMixin, ListView):
         """
         following = self.request.user.following.all()
         return Post.objects.filter(creator__in=following)
+
+
+class EditPostView(UpdateView):
+    form_class = EditPostForm
+
+    def get(self, request, *args, **kwargs):
+        """
+        Redirect to index when GET request sent to EditPostView
+        """
+        return redirect('network:index')
+
+    def put(self, *args, **kwargs):
+        data = json.loads(self.request.body)
+
+        post_id = data['post_id']
+
+        post = Post.objects.get(creator=self.request.user, id=post_id)
+        post.content = data['content']
+        post.save()
+        return HttpResponse(status=204)
+
+
+def edit_post_view(request):
+    if request.method == 'PUT':
+        data = json.loads(request.body)
+        post_id = data['post_id']
+
+        post = Post.objects.get(id=post_id)
+        form = EditPostForm(request.user, data, instance=post)
+        if form.is_valid():
+            form.save()
+            return HttpResponse(status=204)
+
+    return redirect('network:index')
