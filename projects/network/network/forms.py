@@ -37,7 +37,7 @@ class NewPostForm(forms.ModelForm):
 
 class EditPostForm(forms.ModelForm):
 
-    def __init__(self, user, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         """
         - user: request.user is passed to form in user, assigned to self.user
         - data passed to form in JSON format, parsed and reassigned
@@ -45,10 +45,13 @@ class EditPostForm(forms.ModelForm):
         - self.instance assigned
 
         """
+        self.user = kwargs.pop('user')
         super(EditPostForm, self).__init__(*args, **kwargs)
-        self.user = user
-        self.data = self.parse_json_data()
-        self.instance = self.get_instance()
+        try:
+            self.data = self.parse_json_data()
+            self.instance = self.get_instance()
+        except (TypeError, models.Post.DoesNotExist, KeyError):
+            self.is_bound = None
 
     def parse_json_data(self):
         """Parse the data in JSON format to python format"""
@@ -57,20 +60,7 @@ class EditPostForm(forms.ModelForm):
     def get_instance(self):
         """Get the Post instance from the post_id passed in self.data"""
         post_id = self.data["post_id"]
-        return models.Post.objects.get(id=post_id)
-
-    def clean(self):
-        """
-        Verify post creator is self.user by attempting model get while
-        specifying the post id & creator
-        """
-        try:
-            models.Post.objects.get(
-                id=self.data['post_id'], creator=self.user
-            )
-        except (models.Post.DoesNotExist, TypeError):
-            raise ValidationError('User cannot edit other persons post')
-        return super(EditPostForm, self).clean()
+        return models.Post.objects.get(id=post_id, creator=self.user)
 
     class Meta:
         model = models.Post

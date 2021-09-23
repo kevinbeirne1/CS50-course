@@ -7,7 +7,7 @@
   - [ ] **PROFILE PAGE**
   - [x] **FOLLOWING**
   - [x] **PAGINATION**
-  - [ ] **EDIT POST**
+  - [x] **EDIT POST**
   - [ ] **'LIKE' & 'UNLIKE'**
 
 ##NEW POST
@@ -43,11 +43,11 @@
 - [x] If not on 1st page of posts, a 'Previous' button should appear 
 - [x] Posts are listed in reverse chronological order
 ##EDIT POST
-- [ ] On a users own post is 'Edit' to edit the post
-  - [ ] On clicking 'Edit', text is replaced by textarea that user can edit the post
-  - [ ] User should be able to 'Save' the post
-    - [ ] Can do in JS without having to reload page
-  - [ ] Ensure that users are unable to edit another persons posts
+- [x] On a users own post is 'Edit' to edit the post
+  - [x] On clicking 'Edit', text is replaced by textarea that user can edit the post
+  - [x] User should be able to 'Save' the post
+    - [x] Can do in JS without having to reload page
+  - [x] Ensure that users are unable to edit another persons posts
 ##LIKE & UNLIKE
 - [ ] Users can click a button to 'Like' or 'Unlike' a post
   - [ ] Use JS to update the DB and the page without reloading the page

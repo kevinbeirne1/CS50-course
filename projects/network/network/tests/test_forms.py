@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 from unittest import skip
 from unittest.mock import Mock, patch
@@ -8,9 +9,9 @@ from django.http import HttpRequest
 from django.test import TestCase
 from django.utils import timezone
 
-from ..forms import CreateUserForm, NewPostForm
+from ..forms import CreateUserForm, EditPostForm, NewPostForm
 from ..models import Post
-from .factories import UserFactory
+from .factories import PostFactory, UserFactory
 
 User = get_user_model()
 
@@ -123,4 +124,85 @@ class NewPostFormTest(TestCase):
                 self.assertIn(expected_field, actual_form_fields)
 
 
+class EditPostFormTest(TestCase):
 
+    def setUp(self) -> None:
+        self.user = UserFactory()
+        PostFactory(creator=self.user)
+
+    def test_valid_form_data(self):
+        """
+        Verify that EditPostForm is valid when provided with content, post_id & user
+        """
+        form_data = json.dumps({"post_id": 1, "content": "A new post"})
+        form = EditPostForm(user=self.user, data=form_data)
+        self.assertTrue(form.is_valid())
+
+    def test_blank_form_raises(self):
+        """
+        Verify that EditPostForm raises KeyError when no user provided
+        """
+        with self.assertRaises(KeyError):
+            EditPostForm()
+
+    def test_form_invalid_without_data(self):
+        """
+        Verify that EditPostForm invalid when no content or post_id
+        provided
+        """
+        form = EditPostForm(user=self.user)
+        self.assertFalse(form.is_valid())
+
+    def test_form_invalid_without_post_id(self):
+        """
+        Verify that EditPostForm invalid when no post_id provided
+        """
+        form_data = json.dumps({'post_id': 1})
+        form = EditPostForm(user=self.user, data=form_data)
+        self.assertFalse(form.is_valid())
+
+    def test_form_invalid_without_content(self):
+        """
+        Verify that EditPostForm invalid when no content provided
+        """
+        form_data = json.dumps({'content': "a new post"})
+        form = EditPostForm(user=self.user, data=form_data)
+        self.assertFalse(form.is_valid())
+
+    def test_all_form_fields_present(self):
+        """
+        Verify that EditPostForm has content field
+        """
+        form = EditPostForm(user=None)
+        expected_form_fields = ['content']
+        actual_form_fields = form.fields
+
+        self.assertEqual(len(expected_form_fields), len(actual_form_fields))
+
+        for expected_field in expected_form_fields:
+            with self.subTest():
+                self.assertIn(expected_field, actual_form_fields)
+
+    def test_get_instance_returns_correct_post(self):
+        """
+        Verify that get_instance returns the correct instance of Post
+        """
+        post = PostFactory(creator=self.user)
+        post_id = post.pk
+        PostFactory.create_batch(2)
+
+        form_data = json.dumps({"post_id": post_id, "content": "A new post"})
+        form = EditPostForm(user=self.user, data=form_data)
+        form_post = form.instance
+
+        self.assertEqual(form_post, post)
+
+    def test_parse_JSON_returns_correct_data(self):
+        """
+        Verify that form.data returns a dict of data
+        """
+        raw_data = {"post_id": 1, "content": "A new post"}
+        form_data = json.dumps(raw_data)
+        form = EditPostForm(user=self.user, data=form_data)
+
+        self.assertEqual(form.data, raw_data)

@@ -122,7 +122,7 @@ class FollowingView(LoginRequiredMixin, ListView):
 def edit_post_view(request):
     if request.method == 'PUT':
         request_data = request.body
-        form = EditPostForm(request.user, request_data)
+        form = EditPostForm(data=request_data, user=request.user)
         if form.is_valid():
             form.save()
             return HttpResponse(status=204)
