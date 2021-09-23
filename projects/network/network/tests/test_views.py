@@ -605,9 +605,13 @@ class FollowingViewTest(TestCase):
 
 class EditPostViewTest(TestCase):
 
+    @classmethod
+    def setUpTestData(cls):
+        PostFactory()
+
     def test_edit_post_url(self):
         """
-        Verify that edit_post url is '/edit_post/<post_id>'
+        Verify that edit_post url is '/edit_post'
         """
         url = reverse('network:edit_post')
         self.assertEqual(url, '/edit_post')
@@ -625,7 +629,6 @@ class EditPostViewTest(TestCase):
         """
         Verify that an anonymous User cannot PUT to edit post
         """
-        PostFactory()
 
         self.client.put(
             reverse('network:edit_post'),
@@ -641,7 +644,6 @@ class EditPostViewTest(TestCase):
         Verify that an anonymous User redirected to index when PUT request
         to edit post
         """
-        PostFactory()
 
         response = self.client.put(
             reverse('network:edit_post'),
@@ -651,13 +653,11 @@ class EditPostViewTest(TestCase):
 
         self.assertRedirects(response, reverse('network:index'))
 
-    # @skip
     def test_user_cannot_PUT_edit_post_on_others_posts(self):
         """
         Verify that a logged in User cannot PUT edit post on
         another persons post
         """
-        PostFactory()
         self.client.force_login(UserFactory())
 
         self.client.put(
@@ -669,13 +669,11 @@ class EditPostViewTest(TestCase):
         post = Post.objects.first()
         self.assertNotEqual(post.content, "A new post")
 
-    # @skip
     def test_user_edit_post_PUT_redirects_to_index_on_others_posts(self):
         """
         Verify that a logged in User redirected to index when PUT
-        request to edit post on another users post
+        request to edit post on another users Post
         """
-        PostFactory()
         self.client.force_login(UserFactory())
 
         response = self.client.put(
@@ -688,10 +686,9 @@ class EditPostViewTest(TestCase):
 
     def test_valid_edit_post_PUT_doesnt_redirect(self):
         """
-        Verify that there is no redirect when POST request
+        Verify that there is no redirect when PUT request
         to edit_post
         """
-        PostFactory()
         test_user = User.objects.first()
         self.client.force_login(test_user)
 
@@ -705,20 +702,73 @@ class EditPostViewTest(TestCase):
 
     def test_valid_PUT_edit_post_updates_post(self):
         """
-        Verify that a valid POST request to edit_post updates
+        Verify that a valid PUT request to edit_post updates
         Post instance
         """
-        PostFactory()
         test_user = User.objects.first()
         self.client.force_login(test_user)
 
+        post = Post.objects.first()
+
         self.client.put(
             reverse('network:edit_post'),
-            json.dumps({"post_id": 1, "content": "A new post"}),
+            json.dumps({"post_id": post.pk, "content": "I changed the post"}),
             content_type='application/json'
         )
 
-        new_post = Post.objects.first()
+        updated_post = Post.objects.first()
 
-        self.assertEqual(new_post.content, "A new post")
+        self.assertEqual(updated_post.content, "I changed the post")
 
+
+class LikePostViewTest(TestCase):
+
+    def test_like_post_url(self):
+        """
+        Verify that like_post url is '/like_post'
+        """
+        url = reverse('network:like_post')
+        self.assertEqual(url, '/like_post')
+
+    def test_GET_like_post_redirect_to_index(self):
+        """
+        Verify that user redirected to 'index' when trying
+        to access like_post with get request
+        """
+        # self.client.force_login(UserFactory())
+        response = self.client.get(reverse('network:like_post'))
+        self.assertRedirects(response, reverse('network:index'))
+
+    def test_valid_like_post_PUT_doesnt_redirect(self):
+        """
+        Verify that there is no redirect when POST request
+        to like_post
+        """
+        # PostFactory()
+        # test_user = User.objects.first()
+        # self.client.force_login(test_user)
+
+        response = self.client.put(
+            reverse('network:like_post'),
+            # json.dumps({"post_id": 1, "content": "A new post"}),
+            # content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 204)
+
+    def test_valid_PUT_like_post_updates_post_likes(self):
+        """
+        Verify that a valid POST request to edit_post updates
+        Post instance
+        """
+        post = PostFactory()
+        # test_user = User.objects.first()
+        # self.client.force_login(test_user)
+
+        self.client.put(
+            reverse('network:like_post'),
+            # json.dumps({"post_id": 1, "content": "A new post"}),
+            # content_type='application/json'
+        )
+
+        self.assertEqual(post.likes_count, 1)

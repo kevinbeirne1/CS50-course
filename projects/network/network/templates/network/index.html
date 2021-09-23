@@ -16,7 +16,12 @@
                 <textarea id="content_textarea">{{ post.content }}</textarea>
                 <div id="creator_element">Post Creator: <a id="creator" href="{% url 'network:profile' post.creator %}">{{ post.creator }}</a></div>
                 <div id="pub_date">Date Posted: {{ post.pub_date |date:'d, M, Y H:i' }}</div>
-                <div id="likes">Likes: {{ post.likes_count }}</div>
+                <div id="likes">
+                    Likes: <span id="likes_count">{{ post.likes_count }}</span>
+                    <button class="btn btn-sm btn-outline-primary" id="like">Like</button>
+                    <button class="btn btn-sm btn-outline-primary" id="unlike">Unike</button>
+
+                </div>
 <!--                {% csrf_token %}-->
                 {% if user == post.creator %}
                     <button class="btn btn-sm btn-outline-primary" id="edit">Edit</button>

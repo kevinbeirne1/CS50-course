@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width">
     <title>Network - Javascript Tests</title>
     <link rel="stylesheet" href="qunit-2.16.0.css">
+    <script>
+        var csrftoken = '{{ csrf_token }}'
+    </script>
 </head>
 <body>
     <div id="qunit"></div>
@@ -15,6 +18,9 @@
             <textarea id="content_textarea" hidden>A new post</textarea>
             <button class="btn btn-sm btn-outline-primary" id="edit">Edit</button>
             <button class="btn btn-sm btn-outline-primary" id="save" hidden>Save</button>
+            <div id="likes">Likes: <span id="likes_count">1</span></div>
+            <button class="btn btn-sm btn-outline-primary" id="like">Like</button>
+            <button class="btn btn-sm btn-outline-primary" id="unlike" hidden>Unlike</button>
         </div>
     </div>
 
@@ -29,8 +35,8 @@
 
         QUnit.test("Sanity check test that save & textarea not initially visible", (assert) => {
             window.Network.initialize()
-                assert.equal($('textarea[id="content_textarea"]').is(':visible'), false);
-                assert.equal($('button[id="save"]').is(':visible'), false);
+            assert.equal($('textarea[id="content_textarea"]').is(':visible'), false);
+            assert.equal($('button[id="save"]').is(':visible'), false);
         });
 
         QUnit.test("div not visible after clicking edit", (assert) => {
@@ -125,6 +131,67 @@
             save_button.trigger('click');
             assert.equal($('button[id="save"]').is(':visible'), false);
         });
+
+        QUnit.test('Sanity check initial likes value, like and unlike button', (assert) => {
+            window.Network.initialize()
+            assert.equal($('#likes_count').text(), "1");
+            assert.equal($('button[id="like"]').is(':visible'), true);
+            assert.equal($('button[id="unlike"]').is(':visible'), false);
+        })
+
+        QUnit.test('likes_count increments after clicking like button', (assert) => {
+            window.Network.initialize();
+            $('#like').trigger('click');
+            assert.equal($('#likes_count').text(), "2")
+        })
+
+        QUnit.test('Unlike button visible after clicking like button', (assert) => {
+            window.Network.initialize();
+            $('#like').trigger('click');
+            let unlike_button = $('#unlike')
+            assert.equal(unlike_button.is(':visible'), true);
+        })
+
+        QUnit.test('Like button not visible after clicking like button', (assert) => {
+            window.Network.initialize();
+            let like_button = $('#like');
+            like_button.trigger('click');
+            assert.equal(like_button.is(':visible'), false);
+        })
+
+        QUnit.test('likes_count decrements after clicking unlike button', (assert) => {
+            window.Network.initialize();
+            let like_button = $('#like')
+            let unlike_button = $('#unlike')
+            like_button.hide()
+            unlike_button.show()
+
+            unlike_button.trigger('click');
+            assert.equal($('#likes_count').text(), "0")
+        })
+
+        QUnit.test('Like button visible after clicking unlike button', (assert) => {
+            window.Network.initialize();
+            let like_button = $('#like');
+            let unlike_button = $('#unlike');
+            like_button.hide();
+            unlike_button.show();
+
+            unlike_button.trigger('click');
+            assert.equal(like_button.is(':visible'), true);
+        })
+
+        QUnit.test('Unlike button not visible after clicking unlike button', (assert) => {
+            window.Network.initialize();
+            let like_button = $('#like');
+            let unlike_button = $('#unlike');
+            like_button.hide();
+            unlike_button.show();
+
+            unlike_button.trigger('click');
+            assert.equal(unlike_button.is(':visible'), false);
+        })
+
     </script>
 
 </body>

@@ -67,3 +67,16 @@ class EditPostForm(forms.ModelForm):
         fields = [
             'content'
         ]
+
+
+class LikePostForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        # self.user = kwargs.pop('user')
+        super().__init__(*args, **kwargs)
+
+    class Meta:
+        model = models.Post
+        fields = [
+            'likes'
+        ]

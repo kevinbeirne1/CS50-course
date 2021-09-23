@@ -128,3 +128,9 @@ def edit_post_view(request):
             return HttpResponse(status=204)
 
     return redirect('network:index')
+
+
+def like_post_view(request):
+    if request.method == 'PUT':
+        return HttpResponse(status=204)
+    return redirect('network:index')

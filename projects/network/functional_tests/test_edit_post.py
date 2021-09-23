@@ -2,6 +2,7 @@ from time import sleep
 from unittest import skip
 
 from network.tests.factories import PostFactory, UserFactory
+from selenium.common.exceptions import ElementNotInteractableException
 from selenium.webdriver.common.keys import Keys
 
 from .base import FunctionalTest
@@ -47,14 +48,14 @@ class EditPostTest(FunctionalTest):
 
         # Content is visible
         content_text = content.text
-        self.assertEqual(content.is_displayed(), True)
+        self.assertTrue(content.is_displayed())
 
         # Edit button is visible
-        self.assertEqual(edit_button.is_displayed(), True)
+        self.assertTrue(edit_button.is_displayed())
 
         # Save button and textarea are not visible
-        self.assertEqual(save_button.is_displayed(), False)
-        self.assertEqual(textarea.is_displayed(), False)
+        self.assertFalse(save_button.is_displayed())
+        self.assertFalse(textarea.is_displayed())
 
         # User clicks the edit button
         edit_button.click()
@@ -68,8 +69,8 @@ class EditPostTest(FunctionalTest):
         save_button.is_displayed()
 
         # content and edit_button are not visible
-        self.assertEqual(content.is_displayed(), False)
-        self.assertEqual(edit_button.is_displayed(), False)
+        self.assertFalse(content.is_displayed())
+        self.assertFalse(edit_button.is_displayed())
 
         # user edits the post
         textarea.clear()
@@ -83,14 +84,14 @@ class EditPostTest(FunctionalTest):
         save_button.click()
 
         # Content is visible
-        self.assertEqual(content.is_displayed(), True)
+        self.assertTrue(content.is_displayed())
 
         # Edit button is visible
-        self.assertEqual(edit_button.is_displayed(), True)
+        self.assertTrue(edit_button.is_displayed())
 
         # Save button and textarea are not visible
-        self.assertEqual(save_button.is_displayed(), False)
-        self.assertEqual(textarea.is_displayed(), False)
+        self.assertFalse(save_button.is_displayed())
+        self.assertFalse(textarea.is_displayed())
 
         # content has updated to match the input textarea
         self.assertEqual(content.text, textarea_content)
@@ -143,14 +144,14 @@ class EditPostTest(FunctionalTest):
 
         # Content is visible
         content_text = content.text
-        self.assertEqual(content.is_displayed(), True)
+        self.assertTrue(content.is_displayed())
 
         # Edit button is visible
-        self.assertEqual(edit_button.is_displayed(), True)
+        self.assertTrue(edit_button.is_displayed())
 
         # Save button and textarea are not visible
-        self.assertEqual(save_button.is_displayed(), False)
-        self.assertEqual(textarea.is_displayed(), False)
+        self.assertFalse(save_button.is_displayed())
+        self.assertFalse(textarea.is_displayed())
 
         # User clicks the edit button
         edit_button.click()
@@ -164,8 +165,8 @@ class EditPostTest(FunctionalTest):
         save_button.is_displayed()
 
         # content and edit_button are not visible
-        self.assertEqual(content.is_displayed(), False)
-        self.assertEqual(edit_button.is_displayed(), False)
+        self.assertFalse(content.is_displayed())
+        self.assertFalse(edit_button.is_displayed())
 
         # user edits the post
         textarea.clear()
@@ -179,14 +180,15 @@ class EditPostTest(FunctionalTest):
         save_button.click()
 
         # Content is visible
-        self.assertEqual(content.is_displayed(), True)
+        content_text = content.text
+        self.assertTrue(content.is_displayed())
 
         # Edit button is visible
-        self.assertEqual(edit_button.is_displayed(), True)
+        self.assertTrue(edit_button.is_displayed())
 
         # Save button and textarea are not visible
-        self.assertEqual(save_button.is_displayed(), False)
-        self.assertEqual(textarea.is_displayed(), False)
+        self.assertFalse(save_button.is_displayed())
+        self.assertFalse(textarea.is_displayed())
 
         # content has updated to match the input textarea
         self.assertEqual(content.text, textarea_content)
@@ -262,4 +264,3 @@ class EditPostTest(FunctionalTest):
         # Cannot see the edit button
         edit_buttons = self.browser.find_elements_by_xpath("//*[@id='edit']")
         self.assertEqual(edit_buttons, [])
-

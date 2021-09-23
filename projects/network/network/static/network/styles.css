@@ -1,8 +1,8 @@
-#save {
+#content_textarea {
   display: none;
 }
 
-#content_textarea {
+#like, #save {
   display: none;
 }
 
