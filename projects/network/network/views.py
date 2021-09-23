@@ -120,12 +120,17 @@ class FollowingView(LoginRequiredMixin, ListView):
 
 
 def edit_post_view(request):
-    if request.method == 'PUT':
-        request_data = request.body
-        form = EditPostForm(data=request_data, user=request.user)
-        if form.is_valid():
-            form.save()
-            return HttpResponse(status=204)
+    if request.user.is_authenticated:
+        if request.method == 'PUT':
+            data = json.loads(request.body)
+            post_id = data['post_id']
+            content = {'content': data['content']}
+            if post := Post.objects.filter(creator=request.user, pk=post_id):
+
+                form = EditPostForm(content, instance=post[0])
+                if form.is_valid():
+                    form.save()
+                    return HttpResponse(status=204)
 
     return redirect('network:index')
 
