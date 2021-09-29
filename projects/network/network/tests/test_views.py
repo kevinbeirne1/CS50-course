@@ -1,15 +1,8 @@
-import copy
 import json
-import re
-import unittest
-from unittest import skip
-from unittest.mock import MagicMock, Mock, patch
 
-import pytz
 from django.contrib.auth import get_user_model
 from django.contrib.messages import get_messages
-from django.http import HttpRequest, HttpResponseRedirect
-from django.test import RequestFactory, TestCase
+from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import escape
@@ -166,14 +159,14 @@ class RegisterViewTest(TestCase):
             'password1': 'P@ssword!',
             'password2': 'P@ssword',
         })
-        self.assertContains(response, escape("The two password fields didn’t match."))
+        self.assertContains(response, escape("The two password fields didnt match."))
 
     def test_register_passes_error_message_if_duplicate_username(self):
         """
         Verify that register passes an error messages to response
         when username already exists
         """
-        user = UserFactory(username='harry')
+        UserFactory(username='harry')
         response = self.client.post(reverse('network:register'), data={
             'username': 'harry',
             'email': 'hpotter@test.com',
@@ -410,9 +403,9 @@ class NewPostViewTest(TestCase):
 
 class ProfileViewTest(TestCase):
 
-    def setUp(self, *args, **kwargs) -> None:
-        super().setUp(*args, **kwargs)
-        self.user = UserFactory(username='harry')
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = UserFactory(username='harry')
 
     def tearDown(self) -> None:
         super().tearDown()
@@ -435,7 +428,6 @@ class ProfileViewTest(TestCase):
             'profile_name': 'harry',
         }))
         self.assertTemplateUsed(response, "network/profile.html")
-
 
     def test_post_instances_are_passed_to_profile_template(self):
         """
@@ -500,15 +492,16 @@ class ProfileViewTest(TestCase):
         paginated_posts = response.context['page_obj']
         self.assertEqual(len(paginated_posts), 10)
 
+
 class FollowingViewTest(TestCase):
 
-    def setUp(self, *args, **kwargs) -> None:
-        super().setUp(*args, **kwargs)
-        self.user = UserFactory()
-        self.test_user = UserFactory(username='test_user')
-        PostFactory.create_batch(2, creator=self.test_user)
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = UserFactory()
+        cls.test_user = UserFactory(username='test_user')
+        PostFactory.create_batch(2, creator=cls.test_user)
         PostFactory()
-        self.user.following.add(self.test_user)
+        cls.user.following.add(cls.test_user)
 
     def tearDown(self) -> None:
         super().tearDown()
@@ -611,10 +604,10 @@ class EditPostViewTest(TestCase):
 
     def test_edit_post_url(self):
         """
-        Verify that edit_post url is '/edit_post'
+        Verify that edit_post url is '/edit_post/<post_id>'
         """
-        url = reverse('network:edit_post')
-        self.assertEqual(url, '/edit_post')
+        url = reverse('network:edit_post', kwargs={'post_id': 1})
+        self.assertEqual(url, '/edit_post/1')
 
     def test_GET_edit_post_redirect_to_index(self):
         """
@@ -622,7 +615,7 @@ class EditPostViewTest(TestCase):
         to access edit_post with get request
         """
         self.client.force_login(UserFactory())
-        response = self.client.get(reverse('network:edit_post'))
+        response = self.client.get(reverse('network:edit_post', kwargs={'post_id': 1}))
         self.assertRedirects(response, reverse('network:index'))
 
     def test_unauthenticated_user_cannot_PUT_edit_post(self):
@@ -631,8 +624,8 @@ class EditPostViewTest(TestCase):
         """
 
         self.client.put(
-            reverse('network:edit_post'),
-            json.dumps({"post_id": 1, "content": "A new post"}),
+            reverse('network:edit_post', kwargs={'post_id': 1}),
+            json.dumps({"content": "A new post"}),
             content_type='application/json'
         )
 
@@ -646,8 +639,8 @@ class EditPostViewTest(TestCase):
         """
 
         response = self.client.put(
-            reverse('network:edit_post'),
-            json.dumps({"post_id": 1, "content": "A new post"}),
+            reverse('network:edit_post', kwargs={'post_id': 1}),
+            json.dumps({"content": "A new post"}),
             content_type='application/json'
         )
 
@@ -661,8 +654,8 @@ class EditPostViewTest(TestCase):
         self.client.force_login(UserFactory())
 
         self.client.put(
-            reverse('network:edit_post'),
-            json.dumps({"post_id": 1, "content": "A new post"}),
+            reverse('network:edit_post', kwargs={'post_id': 1}),
+            json.dumps({"content": "A new post"}),
             content_type='application/json'
         )
 
@@ -677,8 +670,8 @@ class EditPostViewTest(TestCase):
         self.client.force_login(UserFactory())
 
         response = self.client.put(
-            reverse('network:edit_post'),
-            json.dumps({"post_id": 1, "content": "A new post"}),
+            reverse('network:edit_post', kwargs={'post_id': 1}),
+            json.dumps({"content": "A new post"}),
             content_type='application/json'
         )
 
@@ -693,8 +686,8 @@ class EditPostViewTest(TestCase):
         self.client.force_login(test_user)
 
         response = self.client.put(
-            reverse('network:edit_post'),
-            json.dumps({"post_id": 1, "content": "A new post"}),
+            reverse('network:edit_post', kwargs={'post_id': 1}),
+            json.dumps({"content": "A new post"}),
             content_type='application/json'
         )
 
@@ -711,8 +704,8 @@ class EditPostViewTest(TestCase):
         post = Post.objects.first()
 
         self.client.put(
-            reverse('network:edit_post'),
-            json.dumps({"post_id": post.pk, "content": "I changed the post"}),
+            reverse('network:edit_post', kwargs={'post_id': post.pk}),
+            json.dumps({"content": "I changed the post"}),
             content_type='application/json'
         )
 
@@ -723,52 +716,427 @@ class EditPostViewTest(TestCase):
 
 class LikePostViewTest(TestCase):
 
+    @classmethod
+    def setUpTestData(cls):
+        cls.post = PostFactory()
+        cls.test_user = UserFactory()
+
     def test_like_post_url(self):
         """
-        Verify that like_post url is '/like_post'
+        Verify that like_post url is '/like_post/<post_id>'
         """
-        url = reverse('network:like_post')
-        self.assertEqual(url, '/like_post')
+        url = reverse('network:like_post', kwargs={'post_id': 1})
+        self.assertEqual(url, '/like_post/1')
 
     def test_GET_like_post_redirect_to_index(self):
         """
         Verify that user redirected to 'index' when trying
         to access like_post with get request
         """
-        # self.client.force_login(UserFactory())
-        response = self.client.get(reverse('network:like_post'))
+        response = self.client.get(
+            reverse('network:like_post', kwargs={'post_id': 1})
+        )
         self.assertRedirects(response, reverse('network:index'))
+
+    def test_unauthenticated_user_like_post_PUT_redirects_to_index(self):
+        """
+        Verify that an anonymous User redirected to index when PUT request
+        to like post
+        """
+
+        response = self.client.put(
+            reverse('network:like_post', kwargs={'post_id': 1}),
+            content_type='application/json'
+        )
+
+        self.assertRedirects(response, reverse('network:index'))
+
+    def test_unauthenticated_user_cannot_PUT_like_post(self):
+        """
+        Verify that an anonymous User cannot PUT to like post
+        """
+
+        self.client.put(
+            reverse('network:like_post', kwargs={'post_id': 1}),
+            content_type='application/json'
+        )
+
+        post = Post.objects.first()
+        self.assertEqual(post.likes_count, 0)
 
     def test_valid_like_post_PUT_doesnt_redirect(self):
         """
-        Verify that there is no redirect when POST request
+        Verify that there is no redirect when valid PUT request
         to like_post
         """
-        # PostFactory()
-        # test_user = User.objects.first()
-        # self.client.force_login(test_user)
+        self.client.force_login(self.test_user)
 
         response = self.client.put(
-            reverse('network:like_post'),
-            # json.dumps({"post_id": 1, "content": "A new post"}),
-            # content_type='application/json'
+            reverse('network:like_post', kwargs={'post_id': 1}),
+            content_type='application/json'
         )
 
         self.assertEqual(response.status_code, 204)
 
-    def test_valid_PUT_like_post_updates_post_likes(self):
+    def test_valid_PUT_like_post_updates_likes_count(self):
         """
-        Verify that a valid POST request to edit_post updates
-        Post instance
+        Verify that a valid PUT request to like_post updates the
+        likes_count of a Post instance
         """
-        post = PostFactory()
-        # test_user = User.objects.first()
-        # self.client.force_login(test_user)
+        self.client.force_login(self.test_user)
 
         self.client.put(
-            reverse('network:like_post'),
-            # json.dumps({"post_id": 1, "content": "A new post"}),
-            # content_type='application/json'
+            reverse('network:like_post', kwargs={'post_id': 1}),
+            content_type='application/json'
         )
 
+        post = Post.objects.first()
+
         self.assertEqual(post.likes_count, 1)
+
+    def test_user_cannot_like_their_own_post(self):
+        """
+        Verify that a user trying to like their own post doesn't
+        increment the Post likes_count
+        """
+        user = self.post.creator
+        self.client.force_login(user)
+
+        self.client.put(
+            reverse('network:like_post', kwargs={'post_id': 1}),
+            content_type='application/json'
+        )
+
+        post = Post.objects.first()
+
+        self.assertEqual(post.likes_count, 0)
+
+    def test_user_trying_to_like_own_post_PUT_doesnt_redirect(self):
+        """
+        Verify that there is no redirect when User attempts PUT request
+        to like_post on their own post
+        """
+        user = self.post.creator
+        self.client.force_login(user)
+
+        response = self.client.put(
+            reverse('network:like_post', kwargs={'post_id': 1}),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 304)
+
+
+class UnlikePostViewTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.post = PostFactory()
+        cls.test_user = UserFactory()
+        cls.post.likes.add(cls.test_user)
+
+    def test_like_post_url(self):
+        """
+        Verify that unlike_post url is '/unlike_post/<post_id>'
+        """
+        url = reverse('network:unlike_post', kwargs={'post_id': 1})
+        self.assertEqual(url, '/unlike_post/1')
+
+    def test_GET_unlike_post_redirect_to_index(self):
+        """
+        Verify that user redirected to 'index' when trying
+        to access unlike_post with get request
+        """
+        response = self.client.get(
+            reverse('network:unlike_post', kwargs={'post_id': 1})
+        )
+        self.assertRedirects(response, reverse('network:index'))
+
+    def test_unauthenticated_user_unlike_post_PUT_redirects_to_index(self):
+        """
+        Verify that an anonymous User redirected to index when PUT request
+        to unlike post
+        """
+
+        response = self.client.put(
+            reverse('network:unlike_post', kwargs={'post_id': 1}),
+            content_type='application/json'
+        )
+
+        self.assertRedirects(response, reverse('network:index'))
+
+    def test_unauthenticated_user_cannot_PUT_unlike_post(self):
+        """
+        Verify that an anonymous User cannot PUT to unlike post
+        """
+
+        self.client.put(
+            reverse('network:unlike_post', kwargs={'post_id': 1}),
+            content_type='application/json'
+        )
+
+        post = Post.objects.first()
+        self.assertEqual(post.likes_count, 1)
+
+    def test_valid_unlike_post_PUT_doesnt_redirect(self):
+        """
+        Verify that there is no redirect when valid PUT request
+        to unlike_post
+        """
+        self.client.force_login(self.test_user)
+
+        response = self.client.put(
+            reverse('network:unlike_post', kwargs={'post_id': 1}),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 204)
+
+    def test_valid_PUT_unlike_post_updates_likes_count(self):
+        """
+        Verify that a valid PUT request to unlike_post updates the
+        likes_count of a Post instance
+        """
+        self.client.force_login(self.test_user)
+
+        self.client.put(
+            reverse('network:unlike_post', kwargs={'post_id': 1}),
+            content_type='application/json'
+        )
+
+        post = Post.objects.first()
+
+        self.assertEqual(post.likes_count, 0)
+
+    def test_user_cannot_unlike_their_own_post(self):
+        """
+        Verify that a user trying to unlike their own post doesn't
+        increment the Post likes_count
+        """
+        user = self.post.creator
+        self.client.force_login(user)
+
+        self.client.put(
+            reverse('network:unlike_post', kwargs={'post_id': 1}),
+            content_type='application/json'
+        )
+
+        post = Post.objects.first()
+
+        self.assertEqual(post.likes_count, 1)
+
+    def test_user_trying_to_unlike_own_post_PUT_doesnt_redirect(self):
+        """
+        Verify that there is no redirect when User attempts PUT request
+        to unlike_post on their own post
+        """
+        user = self.post.creator
+        self.client.force_login(user)
+
+        response = self.client.put(
+            reverse('network:unlike_post', kwargs={'post_id': 1}),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 304)
+
+
+class FollowViewTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = UserFactory()
+        cls.test_user = UserFactory(username='test_user')
+
+    def test_follow_url(self):
+        """
+        Verify that follow url is '/follow/<username>'
+        """
+        url = reverse('network:follow', kwargs={'profile_name': 'test_user'})
+        self.assertEqual(url, '/follow/test_user')
+
+    def test_GET_follow_redirect_to_index(self):
+        """
+        Verify that user redirected to 'index' when trying
+        to access follow with get request
+        """
+        response = self.client.get(
+            reverse('network:follow', kwargs={'profile_name': 'test_user'})
+        )
+        self.assertRedirects(response, reverse('network:index'))
+
+    def test_unauthenticated_user_follow_PUT_redirects_to_index(self):
+        """
+        Verify that an anonymous User redirected to index when PUT request
+        to follow
+        """
+
+        response = self.client.put(
+            reverse('network:follow', kwargs={'profile_name': 'test_user'}),
+        )
+
+        self.assertRedirects(response, reverse('network:index'))
+
+    def test_unauthenticated_user_cannot_PUT_follow(self):
+        """
+        Verify that an anonymous User cannot PUT to follow
+        """
+
+        self.client.put(
+            reverse('network:follow', kwargs={'profile_name': 'test_user'}),
+        )
+
+        self.assertEqual(self.test_user.followers_count, 0)
+
+    def test_valid_follow_PUT_doesnt_redirect(self):
+        """
+        Verify that there is no redirect when valid PUT request
+        to follow
+        """
+        self.client.force_login(self.user)
+
+        response = self.client.put(
+            reverse('network:follow', kwargs={'profile_name': 'test_user'}),
+        )
+
+        self.assertEqual(response.status_code, 204)
+
+    def test_valid_PUT_follow_updates_followers_count(self):
+        """
+        Verify that a valid PUT request to follow updates the
+        followers_count of a User instance
+        """
+        self.client.force_login(self.user)
+
+        self.client.put(
+            reverse('network:follow', kwargs={'profile_name': 'test_user'}),
+        )
+
+        self.assertEqual(self.test_user.followers_count, 1)
+
+    def test_user_cannot_follow_themselves(self):
+        """
+        Verify that a user trying to follow their own profile doesn't
+        increment the User followers_count
+        """
+        self.client.force_login(self.test_user)
+
+        self.client.put(
+            reverse('network:follow', kwargs={'profile_name': 'test_user'}),
+        )
+
+        self.assertEqual(self.test_user.followers_count, 0)
+
+    def test_user_trying_to_follow_own_profile_doesnt_redirect(self):
+        """
+        Verify that there is no redirect when User attempts PUT request
+        to follow on their own profile
+        """
+        self.client.force_login(self.test_user)
+
+        response = self.client.put(
+            reverse('network:follow', kwargs={'profile_name': 'test_user'}),
+        )
+
+        self.assertEqual(response.status_code, 304)
+
+
+class UnfollowViewTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = UserFactory()
+        cls.test_user = UserFactory(username='test_user')
+        cls.user.following.add(cls.test_user)
+
+    def test_unfollow_url(self):
+        """
+        Verify that unfollow url is '/unfollow/<profile_name>'
+        """
+        url = reverse('network:unfollow', kwargs={'profile_name': 'test_user'})
+        self.assertEqual(url, '/unfollow/test_user')
+
+    def test_GET_unfollow_redirect_to_index(self):
+        """
+        Verify that user redirected to 'index' when trying
+        to access unfollow with get request
+        """
+        response = self.client.get(
+            reverse('network:unfollow', kwargs={'profile_name': 'test_user'})
+        )
+        self.assertRedirects(response, reverse('network:index'))
+
+    def test_unauthenticated_user_unfollow_PUT_redirects_to_index(self):
+        """
+        Verify that an anonymous User redirected to index when PUT request
+        to unfollow
+        """
+
+        response = self.client.put(
+            reverse('network:unfollow', kwargs={'profile_name': 'test_user'}),
+        )
+
+        self.assertRedirects(response, reverse('network:index'))
+
+    def test_unauthenticated_user_cannot_PUT_follow(self):
+        """
+        Verify that an anonymous User cannot PUT to unfollow
+        """
+
+        self.client.put(
+            reverse('network:unfollow', kwargs={'profile_name': 'test_user'}),
+        )
+
+        self.assertEqual(self.test_user.followers_count, 1)
+
+    def test_valid_unfollow_PUT_doesnt_redirect(self):
+        """
+        Verify that there is no redirect when valid PUT request
+        to unfollow
+        """
+        self.client.force_login(self.user)
+
+        response = self.client.put(
+            reverse('network:unfollow', kwargs={'profile_name': 'test_user'}),
+        )
+
+        self.assertEqual(response.status_code, 204)
+
+    def test_valid_PUT_unfollow_updates_followers_count(self):
+        """
+        Verify that a valid PUT request to unfollow updates the
+        followers_count of a User instance
+        """
+        self.client.force_login(self.user)
+
+        self.client.put(
+            reverse('network:unfollow', kwargs={'profile_name': 'test_user'}),
+        )
+
+        self.assertEqual(self.test_user.followers_count, 0)
+
+    def test_user_cannot_unfollow_themselves(self):
+        """
+        Verify that a user trying to unfollow their own profile doesn't
+        increment the User followers_count
+        """
+        self.client.force_login(self.test_user)
+
+        self.client.put(
+            reverse('network:unfollow', kwargs={'profile_name': 'test_user'}),
+        )
+
+        self.assertEqual(self.test_user.followers_count, 1)
+
+    def test_user_trying_to_unfollow_own_profile_doesnt_redirect(self):
+        """
+        Verify that there is no redirect when User attempts PUT request
+        to unfollow on their own profile
+        """
+        self.client.force_login(self.test_user)
+
+        response = self.client.put(
+            reverse('network:unfollow', kwargs={'profile_name': 'test_user'}),
+        )
+
+        self.assertEqual(response.status_code, 304)

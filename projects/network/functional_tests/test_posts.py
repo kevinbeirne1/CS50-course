@@ -1,16 +1,19 @@
 from datetime import datetime
-from time import sleep
-from unittest import skip
 
 from django.contrib.auth import get_user_model
-from network.tests.factories import UserFactory
+from network.tests.factories import PostFactory, UserFactory
 
-from .base import FunctionalTest, PreCreatedPostsFunctionalTest
+from .base import FunctionalTest
 
 User = get_user_model()
 
 
-class AllPostsTest(PreCreatedPostsFunctionalTest):
+class AllPostsTest(FunctionalTest):
+
+    def setUp(self) -> None:
+        super().setUp()
+        PostFactory.create_batch(2, creator=UserFactory(username='harry'))
+        PostFactory()
 
     def test_logged_user_can_access_following_from_masthead(self):
         """
@@ -47,20 +50,20 @@ class AllPostsTest(PreCreatedPostsFunctionalTest):
         self.browser.get(self.live_server_url)
 
         # All posts are displayed on the homepage
-        posts = self.browser.find_elements_by_xpath('//*[@id="post_media"]')
-        self.assertEqual(len(posts), 8)
+        posts = self.browser.find_elements_by_xpath('//*[@class="post_media"]')
+        self.assertEqual(len(posts), 3)
 
         for post in posts:
             with self.subTest():
-                content = post.find_element_by_xpath("//*[@id='content']").text
-                creator = post.find_element_by_xpath("//*[@id='creator']").text
-                pub_date = post.find_element_by_xpath("//*[@id='pub_date']").text
-                likes = post.find_element_by_xpath("//*[@id='likes']").text
+                content = post.find_element_by_xpath(".//*[@id='content']").text
+                creator = post.find_element_by_xpath(".//*[@id='creator']").text
+                pub_date = post.find_element_by_xpath(".//*[@id='pub_date']").text
+                likes = post.find_element_by_xpath(".//*[@id='likes']").text
 
-                self.assertRegex(content, "Post #\d")
-                self.assertRegex(creator, "harry")
+                self.assertRegex(content, r"Post #\d")
+                self.assertRegex(creator, ".+")
                 self.assertRegex(pub_date, "Date Posted: .+")
-                self.assertEqual(likes, "Likes: 0")
+                self.assertRegex(likes, "Likes: 0")
 
     def test_can_view_user_profile_from_index(self):
         """
@@ -81,7 +84,8 @@ class AllPostsTest(PreCreatedPostsFunctionalTest):
         self.assertNotEqual(profile_links, [])
 
         # User clicks the first profile link
-        profile_links[0].click()
+        harry_profile = self.browser.find_element_by_xpath("//*[text()='harry']")
+        harry_profile.click()
 
         self.wait_for_url_to_load("/harry/")
 
@@ -106,7 +110,7 @@ class AllPostsTest(PreCreatedPostsFunctionalTest):
                 self.assertGreater(pub_date, pub_dates[i + 1])
 
 
-class FollowingTest(PreCreatedPostsFunctionalTest):
+class FollowingTest(FunctionalTest):
 
     def setUp(self) -> None:
         """
@@ -115,8 +119,10 @@ class FollowingTest(PreCreatedPostsFunctionalTest):
         :return:
         """
         super().setUp()
+        PostFactory.create_batch(3)
+        PostFactory(creator=UserFactory(username='harry'))
         self.user = UserFactory()
-        follows = list(User.objects.all())[-5:]
+        follows = list(User.objects.exclude(username=self.user.username))
         [self.user.following.add(follow) for follow in follows]
 
     def test_logged_user_can_access_following_from_masthead(self):
@@ -197,8 +203,8 @@ class FollowingTest(PreCreatedPostsFunctionalTest):
         self.wait_for_url_to_load('/following/')
 
         # All posts are displayed on the homepage
-        posts = self.browser.find_elements_by_xpath('//*[@id="post_media"]')
-        self.assertEqual(len(posts), 5)
+        posts = self.browser.find_elements_by_xpath('//*[@class="post_media"]')
+        self.assertEqual(len(posts), 4)
 
     def test_following_post_content(self):
         """
@@ -224,19 +230,19 @@ class FollowingTest(PreCreatedPostsFunctionalTest):
         self.wait_for_url_to_load('/following/')
 
         # All posts display the correct information
-        posts = self.browser.find_elements_by_xpath('//*[@id="post_media"]')
+        posts = self.browser.find_elements_by_xpath('//*[@class="post_media"]')
 
         for post in posts:
             with self.subTest():
-                content = post.find_element_by_xpath("//*[@id='content']").text
-                creator = post.find_element_by_xpath("//*[@id='creator']").text
-                pub_date = post.find_element_by_xpath("//*[@id='pub_date']").text
-                likes = post.find_element_by_xpath("//*[@id='likes']").text
+                content = post.find_element_by_xpath(".//*[@id='content']").text
+                creator = post.find_element_by_xpath(".//*[@id='creator']").text
+                pub_date = post.find_element_by_xpath(".//*[@id='pub_date']").text
+                likes = post.find_element_by_xpath(".//*[@id='likes']").text
 
-                self.assertRegex(content, "Post #\d")
-                self.assertRegex(creator, "harry")
+                self.assertRegex(content, r"Post #\d")
+                self.assertRegex(creator, ".+")
                 self.assertRegex(pub_date, "Date Posted: .+")
-                self.assertEqual(likes, "Likes: 0")
+                self.assertRegex(likes, "Likes: 0")
 
     def test_can_view_user_profile_from_following(self):
         """
@@ -298,4 +304,3 @@ class FollowingTest(PreCreatedPostsFunctionalTest):
         for i, pub_date in enumerate(pub_dates[:-1]):
             with self.subTest():
                 self.assertGreater(pub_date, pub_dates[i + 1])
-

@@ -30,17 +30,17 @@ class LikeTest(FunctionalTest):
         self.log_in_user(user)
 
         # Sees a post
-        post = self.browser.find_element_by_xpath("//*[@id='post_media']")
+        post = self.browser.find_element_by_xpath(".//*[@class='post_media']")
 
         # Sees a like button
-        like_button = post.find_element_by_xpath("//*[@id='like']")
+        like_button = post.find_element_by_xpath(".//*[@id='like']")
         self.assertTrue(like_button.is_displayed())
 
-        likes_count = post.find_element_by_xpath("//*[@id='likes_count']")
+        likes_count = post.find_element_by_xpath(".//*[@id='likes_count']")
         self.assertEqual(likes_count.text, "0")
 
         # Doesn't see an unlike button
-        unlike_button = post.find_element_by_xpath("//*[@id='unlike']")
+        unlike_button = post.find_element_by_xpath(".//*[@id='unlike']")
         self.assertFalse(unlike_button.is_displayed())
 
         # Clicks like
@@ -60,7 +60,7 @@ class LikeTest(FunctionalTest):
 
         # Likes_count remains at new value
         likes_count = self.browser.find_element_by_xpath("//*[@id='likes_count']")
-        self.assertEqual(likes_count.text, "1")
+        self.assertEqual(likes_count.text, "1", msg="likes_count reset after page reload")
 
     def test_logged_in_user_can_unlike_a_post(self):
         """
@@ -88,17 +88,17 @@ class LikeTest(FunctionalTest):
         self.log_in_user(user)
 
         # Sees a post
-        post = self.browser.find_element_by_xpath("//*[@id='post_media']")
+        post = self.browser.find_element_by_xpath(".//*[@class='post_media']")
 
         # Sees an unlike button
-        unlike_button = post.find_element_by_xpath("//*[@id='unlike']")
+        unlike_button = post.find_element_by_xpath(".//*[@id='unlike']")
         self.assertTrue(unlike_button.is_displayed())
 
-        likes_count = post.find_element_by_xpath("//*[@id='likes_count']")
+        likes_count = post.find_element_by_xpath(".//*[@id='likes_count']")
         self.assertEqual("1", likes_count.text)
 
         # Doesn't see a like button
-        like_button = post.find_element_by_xpath("//*[@id='like']")
+        like_button = post.find_element_by_xpath(".//*[@id='like']")
         self.assertFalse(like_button.is_displayed())
 
         # Clicks unlike
@@ -118,4 +118,28 @@ class LikeTest(FunctionalTest):
 
         # Likes_count remains at new value
         likes_count = self.browser.find_element_by_xpath("//*[@id='likes_count']")
-        self.assertEqual(likes_count.text, "0")
+        self.assertEqual(likes_count.text, "0", msg="likes count reset after reload")
+
+    def test_logged_out_user_cannot_like_post(self):
+        """
+        Anonymous user
+        - opens the home page
+        - sees a post
+        - doesn't see like button
+        - doesn't see unlike button
+        """
+        PostFactory()
+
+        # Anonymous User loads the homepage
+        self.browser.get(self.live_server_url)
+
+        # Sees a post
+        post = self.browser.find_element_by_xpath("//*[@class='post_media']")
+
+        # Doesn't see a like button
+        like_buttons = post.find_elements_by_xpath(".//*[@id='like']")
+        self.assertEqual(like_buttons, [])
+
+        # Doesn't see an unlike button
+        unlike_button = post.find_elements_by_xpath(".//*[@id='unlike']")
+        self.assertEqual(unlike_button, [])

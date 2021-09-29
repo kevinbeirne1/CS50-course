@@ -1,6 +1,3 @@
-from time import sleep
-from unittest import skip
-
 from django.contrib.auth import get_user_model
 from network.tests.factories import UserFactory
 
@@ -146,6 +143,3 @@ class LoginTest(FunctionalTest):
 
         # User isn't logged in (sees log in option)
         self.check_user_logged_out()
-
-
-

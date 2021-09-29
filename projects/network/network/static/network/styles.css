@@ -1,9 +1,14 @@
-#content_textarea {
+#content_textarea, #save {
   display: none;
 }
 
-#like, #save {
-  display: none;
+.post_media {
+  border: 5px solid black;
+  margin: 3px;
+}
+
+#user_likes_post {
+  white-space: nowrap;
 }
 
 /*# sourceMappingURL=styles.css.map */

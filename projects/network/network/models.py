@@ -26,6 +26,9 @@ class Post(models.Model):
     def likes_count(self):
         return self.likes.count()
 
+    @property
+    def users_that_like(self):
+        return self.likes.all()
+
     class Meta:
         ordering = ['-pub_date', ]
-

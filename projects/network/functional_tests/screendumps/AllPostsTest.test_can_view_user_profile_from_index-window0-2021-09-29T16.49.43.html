@@ -1,0 +1,98 @@
+<html lang="en"><head>
+        <title>Social Network</title>
+        <script src="https://code.jquery.com/jquery.js"></script>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+        <script src="/static/network/network.js"></script>
+        <link rel="stylesheet" href="/static/network/styles.css">
+    </head>
+    <body>
+
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="/">Network</a>
+          
+            <div>
+                <ul class="navbar-nav mr-auto">
+                
+                <li class="nav-item">
+                  <a class="nav-link" href="/">All Posts</a>
+                </li>
+                
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login/">Log In</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/register/">Register</a>
+                    </li>
+                
+                </ul>
+            </div>
+          </nav>
+        
+        <div class="body">
+
+            
+
+            
+
+            
+    
+    <div id="profile_details">
+        <h2>User Profile: </h2>
+        <div id="profile">Username: <span id="profile_name">Kaitlyn Davis</span></div>
+        <div id="followers">
+            Followers:
+                <span id="followers_count">
+                    0
+                </span>
+        </div>
+        <div id="following">
+            Following:
+                <span id="following_count">
+                    0
+                </span>
+        </div>
+
+        
+
+    </div>
+
+
+    
+        <script>
+            var csrftoken = '5yvIZgz8gsk7GCAvU2eTfvntyPSONBhjOnWY2F0H0umA0DyIHvfJEbubinAcC2dn'
+        </script>
+        <div class="container">
+            <div class="post_media" data-post-id="3">
+                <div id="content">Post #2</div>
+                <textarea id="content_textarea">Post #2</textarea>
+                <div id="creator_element">Post Creator: <a id="creator" href="/Kaitlyn%20Davis/">Kaitlyn Davis</a></div>
+                <div id="pub_date">Date Posted: 03, Jan, 2021 00:00</div>
+                <div id="likes">
+                    Likes: <span id="likes_count">0</span>
+
+                    
+                </div>
+                
+            </div>
+        </div>
+    
+
+    <div class="pagination">
+         <span class="step-links">
+             
+
+             <span class="current">
+                 Page 1 of 1.
+             </span>
+
+             
+         </span>
+    </div>
+
+
+        </div>
+        <script>window.Network.initialize()</script>
+
+    
+</body></html>

@@ -167,11 +167,11 @@ class FunctionalTest(StaticLiveServerTestCase):
             '//*[starts-with(@class, "alert")]'
         )
 
-
         self.wait_for(lambda: self.assertEqual(len(status_messages), 0))
 
 
 class PreCreatedPostsFunctionalTest(FunctionalTest):
+
 
     def setUp(self) -> None:
         """Pre create posts to display in index view"""

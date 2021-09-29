@@ -1,0 +1,143 @@
+<html lang="en"><head>
+        <title>Social Network</title>
+        <script src="https://code.jquery.com/jquery.js"></script>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+        <script src="/static/network/network.js"></script>
+        <link rel="stylesheet" href="/static/network/styles.css">
+    </head>
+    <body>
+
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="#">Network</a>
+          
+            <div>
+                <ul class="navbar-nav mr-auto">
+                
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><strong>test_user</strong></a>
+                    </li>
+                
+                <li class="nav-item">
+                  <a class="nav-link" href="/">All Posts</a>
+                </li>
+                
+                    <li class="nav-item">
+                        <a class="nav-link" href="/following/">Following</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/new_post/">New Post</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Log Out</a>
+                    </li>
+                
+                </ul>
+            </div>
+          </nav>
+        
+        <div class="body">
+
+            
+
+            
+                
+                    <div class="alert alert-success alert-dismissible" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                        Log In Completed
+                    </div>
+                
+            
+
+            
+    
+    
+
+    
+        <script>
+            var csrftoken = 'ROaxqTYXlMYyWdtB9A7NjMDbVql6koUYs3mhLtBeKfSp6xJXiOGY6YDglQ9r44fp'
+        </script>
+        <div class="container">
+            <div id="post_media" style="border: 5px solid black; margin: 3px ">
+                <input type="hidden" id="post_id" value="3">
+                <div id="content">Post #2</div>
+                <textarea id="content_textarea">Post #2</textarea>
+                <div id="creator_element">Post Creator: <a id="creator" href="/test_user/">test_user</a></div>
+                <div id="pub_date">Date Posted: 03, Jan, 2021 00:00</div>
+                <div id="likes">
+                    Likes: <span id="likes_count">0</span>
+
+                    
+                </div>
+                
+                    <button class="btn btn-sm btn-outline-primary" id="edit">Edit</button>
+                    <button class="btn btn-sm btn-outline-primary" id="save">Save</button>
+                
+            </div>
+        </div>
+    
+        <script>
+            var csrftoken = 'ROaxqTYXlMYyWdtB9A7NjMDbVql6koUYs3mhLtBeKfSp6xJXiOGY6YDglQ9r44fp'
+        </script>
+        <div class="container">
+            <div id="post_media" style="border: 5px solid black; margin: 3px ">
+                <input type="hidden" id="post_id" value="2">
+                <div id="content">Post #1</div>
+                <textarea id="content_textarea">Post #1</textarea>
+                <div id="creator_element">Post Creator: <a id="creator" href="/test_user/">test_user</a></div>
+                <div id="pub_date">Date Posted: 02, Jan, 2021 00:00</div>
+                <div id="likes">
+                    Likes: <span id="likes_count">0</span>
+
+                    
+                </div>
+                
+                    <button class="btn btn-sm btn-outline-primary" id="edit">Edit</button>
+                    <button class="btn btn-sm btn-outline-primary" id="save">Save</button>
+                
+            </div>
+        </div>
+    
+        <script>
+            var csrftoken = 'ROaxqTYXlMYyWdtB9A7NjMDbVql6koUYs3mhLtBeKfSp6xJXiOGY6YDglQ9r44fp'
+        </script>
+        <div class="container">
+            <div id="post_media" style="border: 5px solid black; margin: 3px ">
+                <input type="hidden" id="post_id" value="1">
+                <div id="content">Post #0</div>
+                <textarea id="content_textarea">Post #0</textarea>
+                <div id="creator_element">Post Creator: <a id="creator" href="/test_user/">test_user</a></div>
+                <div id="pub_date">Date Posted: 01, Jan, 2021 00:00</div>
+                <div id="likes">
+                    Likes: <span id="likes_count">0</span>
+
+                    
+                </div>
+                
+                    <button class="btn btn-sm btn-outline-primary" id="edit">Edit</button>
+                    <button class="btn btn-sm btn-outline-primary" id="save">Save</button>
+                
+            </div>
+        </div>
+    
+
+    <div class="pagination">
+         <span class="step-links">
+             
+
+             <span class="current">
+                 Page 1 of 1.
+             </span>
+
+             
+         </span>
+    </div>
+
+
+        </div>
+        <script>window.Network.initialize()</script>
+
+    
+</body></html>

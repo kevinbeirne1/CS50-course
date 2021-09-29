@@ -1,13 +1,8 @@
-import datetime
-from unittest import skip
-from unittest.mock import MagicMock, Mock, patch
-
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError
 from django.test import TestCase
 from django.utils import timezone
 
-from ..models import Post, User
+from ..models import Post
 from .factories import PostFactory, UserFactory
 
 
@@ -77,7 +72,7 @@ class PostModelTest(TestCase):
         """
         Verify that Post has a likes field
         """
-        field_name = Post._meta.get_field('likes')
+        self.assertTrue(Post._meta.get_field('likes'))
 
     def test_Post_has_likes_count_property(self):
         """

@@ -1,5 +1,3 @@
-from time import sleep
-
 from django.contrib.auth import get_user_model
 from network.tests.factories import UserFactory
 

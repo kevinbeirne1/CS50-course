@@ -4,11 +4,11 @@
 - Project have following key deliverables
   - [x] **NEW POST**
   - [x] **ALL POSTS**
-  - [ ] **PROFILE PAGE**
+  - [x] **PROFILE PAGE**
   - [x] **FOLLOWING**
   - [x] **PAGINATION**
   - [x] **EDIT POST**
-  - [ ] **'LIKE' & 'UNLIKE'**
+  - [x] **'LIKE' & 'UNLIKE'**
 
 ##NEW POST
 - [x] Signed in user can create text based post
@@ -30,8 +30,8 @@
   - [x] Number of follower the user has
   - [x] Number of people the user follows
   - [x] Display all their posts in reverse chronological order
-  - [ ] Follow/Unfollow Button
-    - [ ] Only if user is signed in
+  - [x] Follow/Unfollow Button
+    - [x] Only if user is signed in
 ##FOLLOWING
 - [x] 'Following' link in nav bar
   - [x] Lists all posts by people the user follows
@@ -49,5 +49,5 @@
     - [x] Can do in JS without having to reload page
   - [x] Ensure that users are unable to edit another persons posts
 ##LIKE & UNLIKE
-- [ ] Users can click a button to 'Like' or 'Unlike' a post
-  - [ ] Use JS to update the DB and the page without reloading the page
+- [x] Users can click a button to 'Like' or 'Unlike' a post
+  - [x] Use JS to update the DB and the page without reloading the page

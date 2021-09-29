@@ -8,21 +8,26 @@
         <script>
             var csrftoken = '{{ csrf_token }}'
         </script>
-<!--        {{ object.text }}-->
         <div class="container">
-            <div  id="post_media" style="border: 5px solid black; margin: 3px ">
-                <input type="hidden" id="post_id" value={{ post.id }}>
+            <div  class="post_media" data-post-id={{ post.id }}>
                 <div id="content">{{ post.content }}</div>
                 <textarea id="content_textarea">{{ post.content }}</textarea>
                 <div id="creator_element">Post Creator: <a id="creator" href="{% url 'network:profile' post.creator %}">{{ post.creator }}</a></div>
                 <div id="pub_date">Date Posted: {{ post.pub_date |date:'d, M, Y H:i' }}</div>
                 <div id="likes">
                     Likes: <span id="likes_count">{{ post.likes_count }}</span>
-                    <button class="btn btn-sm btn-outline-primary" id="like">Like</button>
-                    <button class="btn btn-sm btn-outline-primary" id="unlike">Unike</button>
 
+                    {% if user != post.creator and user.is_authenticated %}
+
+                        {% if user in post.users_that_like %}
+                            <input id="user_likes_post" type="hidden" value="true">
+                        {% else %}
+                            <input id="user_likes_post" type="hidden" value="false">
+                        {% endif %}
+                        <button class="btn btn-sm btn-outline-primary" id="like">Like</button>
+                        <button class="btn btn-sm btn-outline-primary" id="unlike">Unlike</button>
+                    {% endif %}
                 </div>
-<!--                {% csrf_token %}-->
                 {% if user == post.creator %}
                     <button class="btn btn-sm btn-outline-primary" id="edit">Edit</button>
                     <button class="btn btn-sm btn-outline-primary" id="save">Save</button>

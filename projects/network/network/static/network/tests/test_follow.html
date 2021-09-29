@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Network - Javascript Tests</title>
+    <link rel="stylesheet" href="qunit-2.16.0.css">
+    <script>
+        var csrftoken = '{{ csrf_token }}'
+    </script>
+</head>
+<body>
+    <div id="qunit"></div>
+    <div id="qunit-fixture">
+        <div class="profile_details">
+            <div id="profile">Username: <span id="profile_name">harry</span></div>
+            <div id="followers">Followers: <span id="followers_count">1</span></div>
+            <div id="following">Following: <span id="following_count">0</span></div>
+            <button id="follow">Follow</button>
+            <button id="unfollow" hidden>Unfollow</button>
+            <input id="user_follows_profile" type="hidden" value="false">
+        </div>
+    </div>
+    <script src = "https://code.jquery.com/jquery.js"></script>
+
+<!--    <script src="../jquery-3.6.0.min.js"></script>-->
+    <script src="../network.js"></script>
+    <script src="qunit-2.16.0.js"></script>
+
+    <script>
+
+        let { test } = QUnit
+
+        QUnit.module("Follow and Unfollow Buttons", hooks => {
+
+            // hooks.beforeEach(() => {
+            //     window.Network.initialize();
+                // this.followers_count.text('0')
+                // this.profile_name = $("#profile_name");
+                // this.follow_button = $('#follow_button');
+                // this.unfollow_button = $('#unfollow_button');
+                // this.user_follows_profile = $('#user_follows_profile');
+                // this.followers_count = $('#followers_count');
+                // this.followers_count.text('0')
+            // });
+
+            test('Sanity check initial followers value, follow and unfollow button', (assert) => {
+                window.Network.initialize()
+                assert.equal($("#profile_name").text(), 'harry');
+                assert.equal($('#user_follows_profile').val(), 'false')
+                assert.equal($('#followers_count').text(), "1");
+                assert.equal($('#follow').is(':visible'), true);
+                assert.equal($('#unfollow').is(':visible'), false);
+            });
+
+            test('followers_count increments after clicking follow button', assert => {
+
+                $('#follow').trigger('click');
+                assert.equal($('#followers_count').text(), '2');
+            })
+
+            test('Follow button not visible after clicking follow', assert => {
+                window.Network.initialize()
+
+                let follow_button = $('#follow');
+                $('#follow').trigger('click');
+                assert.equal(follow_button.is(":visible"), false);
+            })
+
+            test('Unfollow button visible after clicking follow', assert => {
+                window.Network.initialize()
+
+                $('#follow').trigger('click');
+                assert.equal($('#unfollow').is(":visible"), true);
+            })
+            //
+            // test('followers_count decrements after clicking unfollow button', assert => {
+            //     window.Network.initialize()
+            //     let followers_count = $('#followers_count')
+            //     followers_count.text(1)
+            //
+            //     $('#unfollow').trigger('click');
+            //     assert.equal(followers_count.text(), '0');
+            // })
+
+            test('Follow button visible after clicking unfollow', assert => {
+                $('#user_follows_profile').text('true')
+                window.Network.initialize()
+                let follow_button = $('#follow')
+                let unfollow_button = $('#unfollow')    
+                assert.equal(follow_button.is(":visible"), false);
+
+
+                unfollow_button.trigger('click');
+                assert.equal(follow_button.is(":visible"), true);
+            })
+
+            test('Unfollow button not visible after clicking unfollow', assert => {
+                window.Network.initialize()
+                let unfollow_button = $('#unfollow')
+                unfollow_button.show()
+
+                unfollow_button.trigger('click');
+                assert.equal(unfollow_button.is(":visible"), false);
+            })
+
+
+
+        });
+
+
+    </script>
+
+</body>
+</html>

@@ -1,19 +1,15 @@
 import json
-from json import JSONDecodeError
 
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth import login
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView as LoginViewBase
 from django.contrib.auth.views import LogoutView as LogoutViewBase
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse, reverse_lazy
-from django.utils.datastructures import MultiValueDictKeyError
-from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import CreateView, DetailView, ListView, UpdateView
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, ListView
 
 from .forms import CreateUserForm, EditPostForm, NewPostForm
 from .models import Post, User
@@ -119,11 +115,10 @@ class FollowingView(LoginRequiredMixin, ListView):
         return Post.objects.filter(creator__in=following)
 
 
-def edit_post_view(request):
+def edit_post_view(request, post_id):
     if request.user.is_authenticated:
         if request.method == 'PUT':
             data = json.loads(request.body)
-            post_id = data['post_id']
             content = {'content': data['content']}
             if post := Post.objects.filter(creator=request.user, pk=post_id):
 
@@ -135,7 +130,49 @@ def edit_post_view(request):
     return redirect('network:index')
 
 
-def like_post_view(request):
+def like_post_view(request, post_id):
     if request.method == 'PUT':
-        return HttpResponse(status=204)
+        if request.user.is_authenticated:
+            post = Post.objects.get(pk=post_id)
+            if post.creator == request.user:
+                return HttpResponse(status=304)
+            else:
+                post.likes.add(request.user)
+                return HttpResponse(status=204)
+    return redirect('network:index')
+
+
+def unlike_post_view(request, post_id):
+    if request.method == 'PUT':
+        if request.user.is_authenticated:
+            post = Post.objects.get(pk=post_id)
+            if post.creator == request.user:
+                return HttpResponse(status=304)
+            else:
+                post.likes.remove(request.user)
+                return HttpResponse(status=204)
+    return redirect('network:index')
+
+
+def follow_profile_view(request, profile_name):
+    if request.method == "PUT":
+        if request.user.is_authenticated:
+            profile = User.objects.get(username=profile_name)
+            if profile == request.user:
+                return HttpResponse(status=304)
+            else:
+                request.user.following.add(profile)
+                return HttpResponse(status=204)
+    return redirect('network:index')
+
+
+def unfollow_profile_view(request, profile_name):
+    if request.method == "PUT":
+        if request.user.is_authenticated:
+            profile = User.objects.get(username=profile_name)
+            if profile == request.user:
+                return HttpResponse(status=304)
+            else:
+                request.user.following.remove(profile)
+                return HttpResponse(status=204)
     return redirect('network:index')

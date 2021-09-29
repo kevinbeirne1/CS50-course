@@ -1,7 +1,4 @@
-import json
 from datetime import datetime
-from unittest import skip
-from unittest.mock import Mock, patch
 
 import pytz
 from django.contrib.auth import get_user_model
@@ -9,7 +6,7 @@ from django.http import HttpRequest
 from django.test import TestCase
 from django.utils import timezone
 
-from ..forms import CreateUserForm, EditPostForm, LikePostForm, NewPostForm
+from ..forms import CreateUserForm, EditPostForm, NewPostForm
 from ..models import Post
 from .factories import PostFactory, UserFactory
 
@@ -156,24 +153,6 @@ class EditPostFormTest(TestCase):
         form = EditPostForm()
         self.assertFalse(form.is_valid())
 
-    @skip
-    def test_form_invalid_without_post_id(self):
-        """
-        Verify that EditPostForm invalid when no post_id provided
-        """
-        form_data = json.dumps({'post_id': 1})
-        form = EditPostForm(user=self.user, data=form_data)
-        self.assertFalse(form.is_valid())
-
-    @skip
-    def test_form_invalid_without_content(self):
-        """
-        Verify that EditPostForm invalid when no content provided
-        """
-        form_data = json.dumps({'content': "a new post"})
-        form = EditPostForm(user=self.user, data=form_data)
-        self.assertFalse(form.is_valid())
-
     def test_all_form_fields_present(self):
         """
         Verify that EditPostForm has content field
@@ -202,53 +181,3 @@ class EditPostFormTest(TestCase):
         form.save()
 
         self.assertEqual(instance, post)
-
-
-class LikePostFormTest(TestCase):
-
-    @classmethod
-    def setUpTestData(cls):
-        cls.user = UserFactory()
-        PostFactory(creator=cls.user)
-
-    def test_valid_form_data(self):
-        """
-        Verify that LikePostForm is valid when provided with user
-        and a JSON with the post_id
-        """
-        # form_data = json.dumps({'post_id': 1})
-        form_data = {'likes': 1}
-        # form = LikePostForm(user=self.user, data=form_data)
-        form = LikePostForm()
-        form.fields['likes'].queryset = Post.objects.filter(pk=1)
-        self.assertTrue(form.is_valid())
-
-    @skip
-    def test_blank_form_raises(self):
-        """
-        Verify that LikePostForm raises KeyError when no user provided
-        """
-        with self.assertRaises(KeyError):
-            LikePostForm()
-
-    def test_form_model_is_post(self):
-        """
-        Verify that LikePostForm model is Post
-        """
-        form = LikePostForm
-        self.assertEqual(form.Meta.model, Post)
-
-    def test_all_form_fields_present(self):
-        """
-        Verify that LikePostForm has likes
-        """
-        # form = LikePostForm(user=None)
-        form = LikePostForm()
-        expected_form_fields = ['likes']
-        actual_form_fields = form.fields
-
-        self.assertEqual(len(expected_form_fields), len(actual_form_fields))
-
-        for expected_field in expected_form_fields:
-            with self.subTest():
-                self.assertIn(expected_field, actual_form_fields)

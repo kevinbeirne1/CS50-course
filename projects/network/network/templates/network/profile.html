@@ -3,9 +3,29 @@
 {% block extra_content %}
     <div id="profile_details">
         <h2>User Profile: </h2>
-        <div id="profile_name">Username: {{ profile }}</div>
-        <div id="followers">Followers: {{ profile.followers_count }}</div>
-        <div id="following">Following: {{ profile.following_count }}</div>
+        <div id="profile">Username: <span id="profile_name">{{ profile }}</span></div>
+        <div id="followers">
+            Followers:
+                <span id="followers_count">
+                    {{ profile.followers_count }}
+                </span>
+        </div>
+        <div id="following">
+            Following:
+                <span id="following_count">
+                    {{ profile.following_count }}
+                </span>
+        </div>
+
+        {% if user.is_authenticated and user != profile %}
+            {% if user in profile.followers.all %}
+                <input id="user_follows_profile" type="hidden" value="true">
+            {% else %}
+                <input id="user_follows_profile" type="hidden" value="false">
+            {% endif %}
+            <button class="btn btn-sm btn-outline-primary" id="follow">Follow</button>
+            <button class="btn btn-sm btn-outline-primary" id="unfollow">Unfollow</button>
+        {% endif %}
 
     </div>
 {% endblock %}

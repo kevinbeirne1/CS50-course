@@ -1,9 +1,4 @@
-from time import sleep
-from unittest import skip
-
 from network.tests.factories import PostFactory, UserFactory
-from selenium.common.exceptions import ElementNotInteractableException
-from selenium.webdriver.common.keys import Keys
 
 from .base import FunctionalTest
 
@@ -38,13 +33,13 @@ class EditPostTest(FunctionalTest):
 
         # sees their post
         post = self.browser.find_element_by_xpath(
-                "//*[text()='test_user']/ancestor::*[@id='post_media']"
+                "//*[text()='test_user']/ancestor::*[@class='post_media']"
         )
 
-        content = post.find_element_by_xpath("//*[@id='content']")
-        textarea = post.find_element_by_xpath("//textarea")
-        save_button = post.find_element_by_xpath("//*[@id='save']")
-        edit_button = post.find_element_by_xpath("//*[@id='edit']")
+        content = post.find_element_by_xpath(".//*[@id='content']")
+        textarea = post.find_element_by_xpath(".//textarea")
+        save_button = post.find_element_by_xpath(".//*[@id='save']")
+        edit_button = post.find_element_by_xpath(".//*[@id='edit']")
 
         # Content is visible
         content_text = content.text
@@ -59,7 +54,7 @@ class EditPostTest(FunctionalTest):
 
         # User clicks the edit button
         edit_button.click()
-        textarea = post.find_element_by_xpath("//textarea")
+        textarea = post.find_element_by_xpath(".//textarea")
 
         # content value is displayed in text area
         textarea.is_displayed()
@@ -101,10 +96,10 @@ class EditPostTest(FunctionalTest):
 
         # The post still displays the new content
         post = self.browser.find_element_by_xpath(
-                "//*[text()='test_user']/ancestor::*[@id='post_media']"
+                "//*[text()='test_user']/ancestor::*[@class='post_media']"
         )
 
-        content = post.find_element_by_xpath("//*[@id='content']")
+        content = post.find_element_by_xpath(".//*[@id='content']")
         self.assertEqual(content.text, textarea_content)
 
     def test_edit_post_changes_only_one_post(self):
@@ -119,8 +114,7 @@ class EditPostTest(FunctionalTest):
         # user has account and posts
         user = UserFactory(username='test_user')
 
-        PostFactory.create_batch(3)
-        PostFactory.create_batch(3, creator=user, content="A new post")
+        PostFactory.create_batch(3, creator=user)
 
         # User loads the home page
         self.browser.get(self.live_server_url)
@@ -130,20 +124,22 @@ class EditPostTest(FunctionalTest):
 
         # sees their 3 posts
         original_posts = self.browser.find_elements_by_xpath(
-            "//*[text()='test_user']/ancestor::*[@id='post_media']"
+            "//*[text()='test_user']/ancestor::*[@class='post_media']"
         )
         self.assertEqual(len(original_posts), 3)
 
         # Only wants to change the second post
         post = original_posts[1]
 
-        content = post.find_element_by_xpath("//*[@id='content']")
-        textarea = post.find_element_by_xpath("//textarea")
-        save_button = post.find_element_by_xpath("//*[@id='save']")
-        edit_button = post.find_element_by_xpath("//*[@id='edit']")
+        content = post.find_element_by_xpath(".//*[@id='content']")
+        textarea = post.find_element_by_xpath(".//textarea")
+        save_button = post.find_element_by_xpath(".//*[@id='save']")
+        edit_button = post.find_element_by_xpath(".//*[@id='edit']")
 
         # Content is visible
         content_text = content.text
+        self.assertEqual(content_text, "Post #1")
+
         self.assertTrue(content.is_displayed())
 
         # Edit button is visible
@@ -155,10 +151,10 @@ class EditPostTest(FunctionalTest):
 
         # User clicks the edit button
         edit_button.click()
-        textarea = post.find_element_by_xpath("//textarea")
+        textarea = post.find_element_by_xpath(".//textarea")
 
         # content value is displayed in text area
-        textarea.is_displayed()
+        self.assertTrue(textarea.is_displayed())
         self.assertEqual(content_text, textarea.text)
 
         # Save button is visible
@@ -180,7 +176,6 @@ class EditPostTest(FunctionalTest):
         save_button.click()
 
         # Content is visible
-        content_text = content.text
         self.assertTrue(content.is_displayed())
 
         # Edit button is visible
@@ -195,7 +190,7 @@ class EditPostTest(FunctionalTest):
 
         # only the second post is changed
         new_posts = self.browser.find_elements_by_xpath(
-            "//*[text()='test_user']/ancestor::*[@id='post_media']"
+            "//*[text()='test_user']/ancestor::*[@class='post_media']"
         )
         new_posts = [post.text for post in new_posts]
 
@@ -207,7 +202,7 @@ class EditPostTest(FunctionalTest):
 
         # only the second post is changed
         posts = self.browser.find_elements_by_xpath(
-            "//*[text()='test_user']/ancestor::*[@id='post_media']"
+            "//*[text()='test_user']/ancestor::*[@class='post_media']"
         )
 
         self.assertEqual(posts[0].text, new_posts[0])
@@ -229,7 +224,7 @@ class EditPostTest(FunctionalTest):
 
         # sees a number of posts
         posts = self.browser.find_elements_by_xpath(
-            "//*[@id='post_media']"
+            "//*[@class='post_media']"
         )
         self.assertNotEqual(posts, [])
 
@@ -257,7 +252,7 @@ class EditPostTest(FunctionalTest):
 
         # sees a number of posts
         posts = self.browser.find_elements_by_xpath(
-            "//*[@id='post_media']"
+            "//*[@class='post_media']"
         )
         self.assertNotEqual(posts, [])
 

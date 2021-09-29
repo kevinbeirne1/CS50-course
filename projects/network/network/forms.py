@@ -1,10 +1,5 @@
-import json
-import logging
-
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from django.core.exceptions import ValidationError
-from django.db.models import Model
 
 from . import models
 
@@ -39,16 +34,4 @@ class EditPostForm(forms.ModelForm):
         model = models.Post
         fields = [
             'content'
-        ]
-
-class LikePostForm(forms.ModelForm):
-
-    def __init__(self, *args, **kwargs):
-        # self.user = kwargs.pop('user')
-        super().__init__(*args, **kwargs)
-
-    class Meta:
-        model = models.Post
-        fields = [
-            'likes'
         ]
